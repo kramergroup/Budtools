@@ -16,4 +16,4 @@ It's pretty good at taking an input bulk crystal structure, cleaving it and gene
 
 KEYNOTE - pymatgen can sometimes suck, it seems to switch between cleavage modes somewhat randomly. I'll try to figure it out.
 
-- - B
+//B
