@@ -32,13 +32,16 @@ from pt import pt
 def the_key(tol, val):
     return val // tol
 
-
+# verbose printing used on a few functions. Perhaps i should have levels for this. Or use logging
 def vprint(s, verbose=False):
     if verbose:
         print(s)
 
 
 # Generate a slabset - useful for convergence testing #
+
+# Weirdly if it saves the structure as a cif. opens said cif and makes it a poscar it is different to
+# writing as a pos immediately. yeah, dumb i know?
 def slabsets(inputfile, outputdir, plane2cut, vacmin=4, vacmax=16, numberoflayers=6):
     # Plane to cut should be in pymatgen format miller planes - [A, B ,C] otherthan that it basically calls on pymatgen
     # to do the work - which is dodge
@@ -54,7 +57,7 @@ def slabsets(inputfile, outputdir, plane2cut, vacmin=4, vacmax=16, numberoflayer
     if vacmax == vacmin:
         vac = []
         vac = [vacmin]
-    else:
+    else: # ok ignore this, this is so dumb
         vac = [None] * 5
         vacrange = ((vacmax - vacmin) / 3)
         vac[0] = 0
