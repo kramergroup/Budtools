@@ -1,0 +1,7 @@
+{
+  "name": "michael",
+  "hostname": "michael",
+  "corespernode": 24,
+  "maxnodes": 8,
+  "submissiontype": "qsub"
+}

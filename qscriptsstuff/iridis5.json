@@ -1,0 +1,7 @@
+{
+  "name": "iridis5",
+  "hostname": "iridis5",
+  "corespernode": 40,
+  "maxnodes": 5,
+  "submissiontype": "sbatch"
+}

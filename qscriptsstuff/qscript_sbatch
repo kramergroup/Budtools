@@ -1,0 +1,27 @@
+#!/bin/bash
+#BUD-iridis5-sbatch
+
+#  -- SLURM INFO --
+
+#SBATCH --ntasks={qs2fcorecount}
+#SBATCH --job-name={qs2fname}
+
+#SBATCH --time=12:00:00
+
+# -- DIREC + MODULES --
+
+cd $SLURM_SUBMIT_DIR
+module purge
+module load intel-mpi/2017.4.239 intel-mkl/2017.4.239
+
+mkdir -p RUN
+rm RUN/*
+
+# -- RUN VASP --
+
+mpirun $HOME/vasp/vasp_std 2>&1 > print-out
+
+# -- CLEANUP --
+rm WAVECAR CHG CHGCAR
+cp POSCAR POTCAR KPOINTS INCAR print-out RUN
+mv C* D* IB* PC* O* R* W* X* vasprun* RUN

@@ -1,0 +1,7 @@
+{
+  "name": "iridis4",
+  "hostname": "iridis4",
+  "corespernode": 16,
+  "maxnodes": 8,
+  "submissiontype": "qsub"
+}

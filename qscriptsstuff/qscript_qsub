@@ -1,0 +1,25 @@
+#!/bin/bash -l
+#BUD-michael-qsub
+
+#$ -S /bin/bash
+
+#$ -l h_rt=12:00:00
+
+#Request 1 gigabyte of RAM per process.
+#$ -l mem=1G
+
+#Request 10G gigabyte of TMPDIR space per node (default is 10 GB)
+#$ -l tmpfs=10G
+
+#$ -N {qs2fname}
+
+#Select the MPI parallel environment and 24 processes.
+#$ -pe mpi {qs2fcorecount}
+
+#$ -cwd
+
+#add to Faraday_MSM
+#$ -P Gold 
+#$ -A Faraday_MSM_kra
+
+gerun $HOME/vasp/vasp_std 2>&1 > print-out

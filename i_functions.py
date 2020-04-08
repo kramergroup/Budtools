@@ -18,9 +18,11 @@
 # TODO - 6. - better error handling of tabulateitall - as of current vaspruns that are dead are just sorta printed as
 #  error then ignored
 
+# NOTE - it's probably a bit confusing to have all the calls in one file but meh. I'm lazy and couldn't be bothered.
+
+import datetime
 import os
 import shutil
-import datetime
 import numpy as np
 from pt import pt
 
@@ -38,7 +40,7 @@ def vprint(s, verbose=False):
 # Generate a slabset - useful for convergence testing #
 def slabsets(inputfile, outputdir, plane2cut, vacmin=4, vacmax=16, numberoflayers=6):
     # Plane to cut should be in pymatgen format miller planes - [A, B ,C] otherthan that it basically calls on pymatgen
-    # to do the work
+    # to do the work - which is dodge
     import os.path
 
     import pymatgen
@@ -79,28 +81,26 @@ def supers(inputfile, outputdir, supercelldim):
     import os
 
     if len(supercelldim) == 3:
-        obby = Structure.from_file(inputfile)
+        struc = Structure.from_file(inputfile)
         os.makedirs(outputdir + '/sup' + str(supercelldim[0]) + str(supercelldim[1]) + str(
             supercelldim[2]), exist_ok=True)
-        obby.make_supercell(supercelldim)
-        obby.to(filename=(outputdir + '/sup' + str(supercelldim[0]) + str(supercelldim[1]) + str(
+        struc.make_supercell(supercelldim)
+        struc.to(filename=(outputdir + '/sup' + str(supercelldim[0]) + str(supercelldim[1]) + str(
             supercelldim[2]) + '/POSCAR'))
     else:
         print('dimension not found fix this')
-    return obby
+    return struc
 
 
 def surfsub(inputstructure, subsfor, subswith, outputdir):
-    from pymatgen.core.structure import Structure
-
-    obby = inputstructure
+    struc = inputstructure
     subspos = []
-    for element in range(0, len(obby)):
-        if obby.species[element].name == subsfor:
+    for element in range(0, len(struc)):
+        if struc.species[element].name == subsfor:
             # print(userinpin + ' @ site' + str(n))
             subspos.append(element)
     # find the surface level
-    eucdis = obby.frac_coords[subspos]
+    eucdis = struc.frac_coords[subspos]
     subspos = np.array([subspos])  # Adding atom positions to this thingy
     subspos = subspos.T  # rotate this array cause yeah
     eucdis = np.append(eucdis, subspos, 1)  # Combining
@@ -109,36 +109,34 @@ def surfsub(inputstructure, subsfor, subswith, outputdir):
     atswitch_1 = int(eucdis[0][3])  # sets a vari to that atom cause yeah
     atswitch_2 = int(eucdis[len(eucdis) - 1][3])
     # Need to just subs this with the other atom which pmg should be able to do
-    obby[atswitch_1] = subswith
-    obby[
+    struc[atswitch_1] = subswith
+    struc[
         atswitch_2] = subswith  # Neccessary to ensure the symmetry - makes cross results annoying tho but oh well
-    obby.sort()  # this is neccessary as uhm you might've took a middle thingy
+    struc.sort()  # this is neccessary as uhm you might've took a middle thingy
     os.makedirs(outputdir + 'sup' + str(subsfor) + '4' + str(subswith) + 'surfsub', exist_ok=True)
-    obby.to(filename=(outputdir + 'sup' + str(subsfor) + '4' + str(subswith) + 'surfsub/POSCAR'))
+    struc.to(filename=(outputdir + 'sup' + str(subsfor) + '4' + str(subswith) + 'surfsub/POSCAR'))
 
 
 def bulksub(inputstructure, subsfor, subswith, outputdir):
-    from pymatgen import Structure
-
-    obby = inputstructure
+    struc = inputstructure
     subspos = []
-    for n__ in range(0, len(obby)):
-        if obby.species[n__].name == subsfor:
+    for n__ in range(0, len(struc)):
+        if struc.species[n__].name == subsfor:
             # print(userinpin + ' @ site' + str(n))
             subspos.append(n__)
     eucdis = []
     for n__ in subspos:  # array-tiest the results of which is closest to center.
-        eucdis = np.append(eucdis, [np.linalg.norm(np.array(0.5) - obby.frac_coords[n__][2]), n__])
+        eucdis = np.append(eucdis, [np.linalg.norm(np.array(0.5) - struc.frac_coords[n__][2]), n__])
 
     eucdis = np.reshape(eucdis, (len(subspos), 2))  # restruc into a x2 array
     eucdis = eucdis[eucdis[:, 0].argsort()]  # order said array
     atswitch = int(eucdis[0][1])  # sets a vari to that atom cause yeah
 
     # Need to just subs this with the other atom which pmg should be able to do
-    obby[atswitch] = subswith
-    obby.sort()  # this is neccessary as uhm you might've took a middle thingy
+    struc[atswitch] = subswith
+    struc.sort()  # this is neccessary as uhm you might've took a middle thingy
     os.makedirs(outputdir + 'sup' + str(subsfor) + '4' + str(subswith) + 'bulksub', exist_ok=True)
-    obby.to(filename=(outputdir + 'sup' + str(subsfor) + '4' + str(subswith) + 'bulksub/POSCAR'))
+    struc.to(filename=(outputdir + 'sup' + str(subsfor) + '4' + str(subswith) + 'bulksub/POSCAR'))
 
 
 # This is obsolete now.
@@ -583,10 +581,7 @@ def tabluateitall(workdir):
 # TODO - may make it read the current incar file and check the ggau values used for hte vaspruns but that seems a little overkill.
 def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False):
     from ase.io import read, write
-    import json
-    import re
     import os
-    import shutil
     from pt import pt
 
     if outputdir == '0':
