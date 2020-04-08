@@ -6,15 +6,15 @@ import os
 # workdir = 'your/directory/to/work/over'
 # potcardir = 'your/potcar/directory/POT_GGA_PAW_PBE/'
 
-
-
-## Checking my function calls work!
+# Checking my function calls work! -
+# slabsets is a bit dodgy and i'm unsure why -> based on how it defines 'layers' I guess.
 i_functions.slabsets('/Users/budmacaulay/Desktop/BULK/POSCAR', '/Users/budmacaulay/Desktop/testing', [0, 0, 1], vacmin=4, vacmax=16, numberoflayers=2)
 
 i_functions.pos2pot(workdir, potcardir)
 
-i_functions.pos2inc(workdir, '/Users/budmacaulay/Desktop/RESUBMIT/s100_9lay/INCAR') ## This is outdatedish use the below 1
-i_functions.pos2inc2(workdir, '/Users/budmacaulay/Desktop/RESUBMIT/s100_9lay/INCAR', verbose=True) # Has a full print-out option incase something goes wrong
+i_functions.pos2inc(workdir, '/Users/budmacaulay/Desktop/RESUBMIT/s100_9lay/INCAR') # This is outdated use the below 1
+i_functions.pos2inc2(workdir, '/Users/budmacaulay/Desktop/RESUBMIT/s100_9lay/INCAR', verbose=True) # Has a full
+# print-out option incase something goes wrong ! needs testing
 
 i_functions.kpointer(workdir, '/Users/budmacaulay/Desktop/RESUBMIT/s100_9lay/KPOINTS')
 
@@ -23,7 +23,7 @@ for subdir, dirs, files in os.walk(str(workdir)):
         if file.endswith('POSCAR'):
             i_functions.dyna(subdir + '/POSCAR', 'bulk')
 
-i_functions.qscript2folder(workdir,'/Users/budmacaulay/Desktop/qscriptsstuff/')
+i_functions.qscript2folder(workdir, 'dir/to/qscriptsstuff/')
 
 i_functions.json2folder(workdir)
 
@@ -43,7 +43,7 @@ suppy = i_functions.supers('/Users/budmacaulay/Desktop/nuu/POSCAR', workdir, [2,
 # inputstructure = Structure.from_file(inputfile)
 # i_functions.bulksub(inputstructure, 'Co', 'Mn', outputdir='/OUTPUT/DIR')
 
-i_functions.vasp2onetep(workdir, '/Users/budmacaulay/Desktop/pycoderun/test.dat')
+i_functions.vasp2onetep(workdir, '/Users/budmacaulay/Desktop/pycoderun/test.dat') # Needs some tests
 
 
 # TODO - make a onetep qscript thinggy - seems like effort tbh, as of current just porting my current one over seems

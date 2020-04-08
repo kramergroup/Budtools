@@ -5,7 +5,8 @@
 #  seemingly randomly?!)
 
 
-# TODO - 2. - setting in the qscript to be variable, and split where it puts systems, (large on ir5), small on michael
+# TODO - 2. - setting in the qscript to be variable, and split where it puts systems, (large on ir5), small on michael -
+#  this seems effort considering the use.
 
 # TODO - 3. - setting in the possypot to spit an error if standard potentials dont exist - a task for smarter people
 
