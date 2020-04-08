@@ -1,4 +1,11 @@
 # Budtools
+
+
+#NEED
+1. pip install pymatgen
+2. pip install ase
+3. ? ? ? -  I think at one point I changed a bit of pymatgen to not raise an error, i can't remember why but if at some point pymatgen spits an error let me know.
+
 Some simple vasp/oneep tools that've been written painstakingly
 
 Some simple python tools (of which the names make rough sense) enclosed in i_functions. Mostly making input files quickly.
@@ -9,4 +16,4 @@ It's pretty good at taking an input bulk crystal structure, cleaving it and gene
 
 KEYNOTE - pymatgen can sometimes suck, it seems to switch between cleavage modes somewhat randomly. I'll try to figure it out.
 
-- B
+//B
