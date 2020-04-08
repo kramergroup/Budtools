@@ -42,6 +42,8 @@ def vprint(s, verbose=False):
 
 # Weirdly if it saves the structure as a cif. opens said cif and makes it a poscar it is different to
 # writing as a pos immediately. yeah, dumb i know?
+
+#Pretty sure Andrea has something similar to this so if this isn't working for you use his?
 def slabsets(inputfile, outputdir, plane2cut, vacmin=4, vacmax=16, numberoflayers=6):
     # Plane to cut should be in pymatgen format miller planes - [A, B ,C] otherthan that it basically calls on pymatgen
     # to do the work - which is dodge
