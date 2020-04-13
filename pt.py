@@ -1,5 +1,4 @@
-## Was considering scraping wikipedia for this information in bulk but scrapers mostly suck in python api. thereofre most
-# of this donebyhand
+# Scraped from rsc https://www.rsc.org/periodic-table
 
 # TODO - fill in the simple blanks, also come up with some interesting way of getting this data easily, other than that
 #  it seems cool in conjunction with these systems
@@ -14,7 +13,7 @@
 # of a way off
 
 
-# MagmomV = initial vasp magmoment desired - this is not set up in onetep yet. seems a little finnicky
+# MagmomV = initial vasp magmoment desired (generally pblock = 0.0, dblock != 0.0)- this is not set up in onetep yet. seems a little finnicky
 import pt_Uval
 import pt_ot
 from pymatgen import Element
@@ -545,7 +544,18 @@ pt = {
         'ot': pt_ot.d_ot,
         'pmgdata': Element.Ti
     },
-
+    "V": {
+        'number': 23,
+        'name': 'Vanadium',
+        'symbol': 'V',
+        'pmgdata': Element.V,
+    },
+    "Cr": {
+        'number': 24,
+        'name': 'Chromium',
+        'symbol': 'Cr',
+        'pmgdata': Element.Cr,
+    },
     # Actual values here (1,2 skip a few only do my ones :). If you want to put yours in do yours. I'm lazy)
     "Mn": {
         'number': 25,
@@ -572,7 +582,12 @@ pt = {
         'pmgdata': Element.Mn
     },
 
-    "Fe": {},
+    "Fe": {
+        'number': 26,
+        'name': 'Iron',
+        'symbol': 'Fe',
+        'pmgdata': Element.Fe
+    },
 
 
     "Co": {
@@ -624,5 +639,161 @@ pt = {
         'ot': pt_ot.Ni_ot,
         'pmgdata': Element.Ni,
         'magmomV': 1.0,
+    },
+    "Cu": {
+        'number': 29,
+        'name': 'Copper',
+        'symbol': 'Cu',
+        'pmgdata': Element.Cu,
+    },
+    "Zn": {
+        'number': 30,
+        'name': 'Zinc',
+        'symbol': 'Zn',
+        'pmgdata': Element.Zn,
+    },
+    "Ga": {
+        'number': 31,
+        'name': 'Gallium',
+        'symbol': 'Ga',
+        'pmgdata': Element.Ga,
+    },
+    "Ge": {
+        'number': 32,
+        'name': 'Germanium',
+        'symbol': 'Ga',
+        'pmgdata': Element.Ge,
+    },
+    "As": {
+        'number': 33,
+        'name': 'Arsenic',
+        'symbol': 'As',
+        'pmgdata': Element.As,
+    },
+    "Se": {
+        'number': 34,
+        'name': 'Selenium',
+        'symbol': 'Se',
+        'pmgdata': Element.Se,
+    },
+    "Br": {
+        'number': 35,
+        'name': 'Bromine',
+        'symbol': 'Br',
+        'pmgdata': Element.Br,
+    },
+    "Kr": {
+        'number': 36,
+        'name': 'Krypton',
+        'symbol': 'Kr',
+        'pmgdata': Element.Kr,
+    },
+    "Rb": {
+        'number': 37,
+        'name': 'Rubidium',
+        'symbol': 'Rb',
+        'pmgdata': Element.Rb,
+    },
+    "Sr": {
+        'number': 38,
+        'name': 'Strontium',
+        'symbol': 'Sr',
+        'pmgdata': Element.Sr,
+    },
+    "Y": {
+        'number': 39,
+        'name': 'Gallium',
+        'symbol': 'Ga',
+        'pmgdata': Element.Y,
+    },
+    "Zr": {
+        'number': 40,
+        'name': 'Zirconium',
+        'symbol': 'Zr',
+        'pmgdata': Element.Zr,
+    },
+    "Nb": {
+        'number': 41,
+        'name': 'Niobium',
+        'symbol': 'Nb',
+        'pmgdata': Element.Nb,
+    },
+    "Mo": {
+        'number': 42,
+        'name': 'Molybdenum',
+        'symbol': 'Mo',
+        'pmgdata': Element.Mo,
+    },
+    "Tc": {
+        'number': 43,
+        'name': 'Technetium',
+        'symbol': 'Tc',
+        'pmgdata': Element.Tc,
+    },
+    "Ru": {
+        'number': 44,
+        'name': 'Ruthenium',
+        'symbol': 'Ru',
+        'pmgdata': Element.Ru,
+    },
+    "Rh": {
+        'number': 45,
+        'name': 'Rhodium',
+        'symbol': 'Rh',
+        'pmgdata': Element.Rh,
+    },
+    "Pd": {
+        'number': 46,
+        'name': 'Palladium',
+        'symbol': 'Pd',
+        'pmgdata': Element.Pd,
+    },
+    "Ag": {
+        'number': 47,
+        'name': 'Silver',
+        'symbol': 'Ag',
+        'pmgdata': Element.Ag,
+    },
+    "Cd": {
+        'number': 48,
+        'name': 'Cadmium',
+        'symbol': 'Cd',
+        'pmgdata': Element.Cd,
+    },
+    "In": {
+        'number': 49,
+        'name': 'Indium',
+        'symbol': 'In',
+        'pmgdata': Element.In,
+    },
+    "Sn": {
+        'number': 50,
+        'name': 'Tin',
+        'symbol': 'Sn',
+        'pmgdata': Element.Sn,
+    },
+    "Sb": {
+        'number': 51,
+        'name': 'Antimony',
+        'symbol': 'Sb',
+        'pmgdata': Element.Sb,
+    },
+    "Te": {
+        'number': 52,
+        'name': 'Tellurium',
+        'symbol': 'Te',
+        'pmgdata': Element.Te,
+    },
+    "I": {
+        'number': 53,
+        'name': 'Iodine',
+        'symbol': 'I',
+        'pmgdata': Element.I,
+    },
+    "Xe": {
+        'number': 54,
+        'name': 'Xenon',
+        'symbol': 'Xe',
+        'pmgdata': Element.Xe,
     }
 }
