@@ -7,14 +7,16 @@ import math
 from pymatgen import SymmOp
 
 
-# TODO - Add a print out setting for this since yeah that'll make sense as thios is the most likely call to crash
+# TODO - Add a print out setting for this since yeah that'll make sense as this is the most likely call to crash
 
 # TODO - Ask some people about whether they way i've done it is absolutely insane.
 
 # TODO - as of current this method produced aLOT less sites for the 5 layer system as it'll also give me every possible
-#  m1m2 composition for my shit.
+#  m1m2 composition for my shit but will half the sites initially (zdir symmetry)
 
-# Provided pymatgen is consistant in making symmtetrical slabs it really shouldn't be an issue
+# Provided pymatgen is consistant in making symmtetrical slabs it really shouldn't be an issue - I should maybe find a
+# way to use sites not structures as non symmetric slabs may cause problems
+
 
 # rewriting genacomp below
 def genacomp(initialstructure, savedir, A1='Co', A2='Mn', fixspecies='Ni', initiallayers=9):
@@ -119,7 +121,7 @@ def genacomp(initialstructure, savedir, A1='Co', A2='Mn', fixspecies='Ni', initi
         while len(listy) != math.ceil(initiallayers/2):
             listy = [list(g) for k, g in itt.groupby(cdim, partial(the_key, ranvar))]
             ranvar = ranvar * 1.01
-            print(ranvar)
+            #print(ranvar)
         # need to half the listy here
         listy.pop()
         flat_list = [item for sublist in listy for item in sublist]
@@ -129,10 +131,10 @@ def genacomp(initialstructure, savedir, A1='Co', A2='Mn', fixspecies='Ni', initi
             for k in makelist:
                 print(k)
                 if c == k.coords[2]:
-                    print('yes')
+                    print('things are working as expected')
                     cutstru.append(k)
         strr = Structure.from_sites(cutstru, to_unit_cell=True)
-        strr.apply_operation(SymmOp.reflection((0,0,1), origin=(strr.lattice.a/2,strr.lattice.b/2,strr.lattice.c/2)))
+        strr.apply_operation(SymmOp.reflection((0,0,1), origin=(strr.lattice.a/2, strr.lattice.b/2, strr.lattice.c/2)))
 
         newest = list(strr) + list(savenew)
         both = Structure.from_sites(newest)
