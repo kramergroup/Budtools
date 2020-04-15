@@ -5,12 +5,10 @@ import os
 
 # Since the onetepconv master availible from the onetep utils seems to be somewhat broken in its ability to actually
 # make files correctly i've instead taken it into my own hands to wewrite it however my bash skills are severly limited
-# and i refuse to use awk unironically when string handling can be around 800x simplier
-
+# and i refuse to use awk unironically when string handling can be around 800x simplier - oh lord was i wrong
 
 # Would be wise to have this onetep conv maker thing magic directly from one onetep input file even though
 # technically you could use my vasp convergence generator funciton followed by my vasp2onetep
-
 # from what i remember my vasp convergence stuff is largely for slabs and encut can be easily varied with a bash for
 # loop and thus is probs unneccessary so, having a way to vary the onetep only params would be good
 
@@ -19,7 +17,7 @@ import os
 # 3. cut off energy (this is the only non-broken call from the onetepmaster so will be last of my priority)
 
 # the cool thing is it can techincally use my library for a good starting point for ngwf info and additionally then work
-# from there to update the library (a long way off) but is a potentially cool feature.
+# which considering my current understanding of onetep is most certainly not advised.
 
 # As of current the ngwf info is set to false because i'm assumign that the onetep input file you've added is there
 # because you're smarter than me
@@ -29,12 +27,24 @@ import os
 
 
 # TODO LIST - in order of importance
-# TODO make it create a small text file at output dir with the input params so people can see what it's done.
-# TODO add a catch all incase the input file has a atomic sites listing but NOT a blockspecies listing
-# TODO add the difficult cases make them use the damn library. as of current it does not which is meh.
-# change the os.mkdirs to os.makedirs(pathexists = ok) as seen in other code. √√
-# add the difficult cases and add a use me thingy magic. √√
+# TODO 1. make it create a small text file at output dir with the input params so people can see what it's done.
+# TODO 2. add a catch all incase the input file has a atomic sites listing but NOT a blockspecies listing
+# TODO 3. add the difficult cases make them use the damn library. as of current it does not which is meh.
+# 4. change the os.mkdirs to os.makedirs(pathexists = ok) as seen in other code. √√
+# 5. add the difficult cases and add a use me thingy magic. √√
 
+# Thoughts list
+# 1. Seems best to hold off on making it put a qscript across the directory as its finnicky and perhaps people will want
+# to write scripts that uses a for loop over the jobs, i have an example of one of these i can put in the docs for this
+# 2. The way i wrote the non simple case looks a lot cleaner than the simple case which is sort of ironic,
+# 3. By making it check that the element is in my pt it effectively forces people to use my pt and update my pt. So i
+# see this as an absolute win! - may be a bit annoying for some but meh i hate you all
+
+# Not sure on  scaling between encut and ngwf etc from what i've gathered encut seems to hold fairly steady in onetep
+# and i have no info on ngwf
+
+
+# There is no system size convergence stuff here so if you want that use vasp slabs, and then vasp2onetep.
 
 def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=True, verbose=True, checkfold=True):
     # Am i going to need a catch all for people using %block vs %BLOCK lets pray not team - ok this is done cause
