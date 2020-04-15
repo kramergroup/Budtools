@@ -25,13 +25,13 @@ import os
 # So clearly the plan to write a bit of code that does what onetepconv does proved a little difficult nonetheless this is
 # roughly done for the simple cases - will now add the more difficult cases and move on from there. Simples ;)
 
-
 # TODO LIST - in order of importance
 # TODO 1. make it create a small text file at output dir with the input params so people can see what it's done.
 # TODO 2. add a catch all incase the input file has a atomic sites listing but NOT a blockspecies listing
 # TODO 3. add the difficult cases make them use the damn library. as of current it does not which is meh.
 # 4. change the os.mkdirs to os.makedirs(pathexists = ok) as seen in other code. √√
-# 5. add the difficult cases and add a use me thingy magic. √√
+# TODO 5. verbose the less simple cases just in case it crashes for someone else. Meh this is not my job.
+# 6. add the difficult cases and add a use me thingy magic. √√
 
 # Thoughts list
 # 1. Seems best to hold off on making it put a qscript across the directory as its finnicky and perhaps people will want
@@ -140,7 +140,6 @@ def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=Tr
                 outfile.write("\n".join(lizstrip))
             vprint(counter, verbose)
             counter += 1
-
 
     else:
         if uselibs:
