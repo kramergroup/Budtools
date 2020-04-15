@@ -262,7 +262,7 @@ def conv_ngwf_rad(input_file, outputdir, numbersteps=4, stepsize=0.5, uselibs=Fa
                                                                         element.split(' ')[1],
                                                                         element.split(' ')[2],
                                                                         element.split(' ')[3],
-                                                                        str(int(element.split(' ')[4]) + (
+                                                                        str(float(element.split(' ')[4]) + (
                                                                                 counter * stepsize))))
                         else:
                             print(element.split(' ') + ' element not found - im gunna die now')
