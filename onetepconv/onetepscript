@@ -1,0 +1,66 @@
+#!/bin/bash --login
+# ONETEP job submission script for Iridis 5 by J. C. Womack, 29/03/18
+# v0.01
+
+# uncomment the following two lines if you need to debug this script
+# set -v      # Print script lines as they are read.
+# set -x      # Print commands and their arguments as they are executed.
+
+# SLURM job options
+#SBATCH --job-name licoo32        # Name for job
+#SBATCH --partition batch       # Use batch resource allocation partition
+#SBATCH --ntasks=10                    # Total number of MPI processes in job
+#SBATCH --nodes=1                    # Number of nodes in job
+#SBATCH --cpus-per-task=4               # Number of OMP threads spawned from each MPI process
+#SBATCH --ntasks-per-node=10
+#SBATCH --mem 0               # Memory required per node, "0" is a special option which requests all the memory on each node.
+#SBATCH --time 1:00:00
+#SBATCH --exclusive
+module purge
+module load intel-mkl/2018.1.163
+module load intel-mpi/2018.3.222
+# Load modules for running ONETEP compiled using GFortran 6.4.0 and Intel MKL & MPI 2017.4.239
+
+# module load gcc/6.4.0
+# module load ifort_omp_mkl
+# Set the number of threads per process
+export OMP_NUM_THREADS=4
+
+# Set OpenMP thread stack size to something larger than the default
+export OMP_STACKSIZE=64M
+
+# Set PMI library to be used in Intel MPI to Slurm Process Management Interface (PMI) library
+# as in example Intel MPI submission script from hpc.soton.ac.uk:
+#   https://hpc.soton.ac.uk/slurm/run/#pure-intelmpi-batch-script
+export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi.so
+
+# Set parallel execution command for testcode
+# Use srun command, as recommended in example Intel MPI submission script from
+# hpc.soton.ac.uk:
+#   https://hpc.soton.ac.uk/slurm/run/#pure-intelmpi-batch-script
+# Note that the number of tasks, number of tasks per node, and CPUs per task have
+# already been set up via the sbatch command. They are passed to srun via
+# environment variables:
+#   SLURM_NTASKS
+#   SLURM_NTASKS_PER_NODE
+#   SLURM_CPUS_PER_TASK
+
+# Set ONETEP executable path
+ONETEP_EXE="/home/bm5g15/onetep/bin/onetep.iridis5.intel18.omp.scalapack"
+
+# Set input filename
+INPUT_FILE="INPUTFILENAME"
+
+# Set output filename
+OUTPUT_FILE="$(basename ${INPUT_FILE} .dat).out"
+
+# Set error output filename
+ERROR_FILE="$(basename ${INPUT_FILE} .dat).err"
+
+# Launch the parallel job
+for dir in */; do
+echo "Now running in $dir"
+cd ./$dir
+srun ${ONETEP_EXE} ${INPUT_FILE} > ${OUTPUT_FILE} 2> ${ERROR_FILE}
+cd ../
+done
