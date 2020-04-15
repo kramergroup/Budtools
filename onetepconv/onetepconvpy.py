@@ -32,6 +32,7 @@ import os
 # 4. change the os.mkdirs to os.makedirs(pathexists = ok) as seen in other code. √√
 # TODO 5. verbose the less simple cases just in case it crashes for someone else. Meh this is not my job.
 # 6. add the difficult cases and add a use me thingy magic. √√
+# TODO 7. Allow the input to be a xyz file maybe idk since i have the onetepmaker able to put hubbard u stuff in.
 
 # Thoughts list
 # 1. Seems best to hold off on making it put a qscript across the directory as its finnicky and perhaps people will want
