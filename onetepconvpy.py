@@ -24,24 +24,27 @@ import os
 # As of current the ngwf info is set to false because i'm assumign that the onetep input file you've added is there
 # because you're smarter than me
 
-# So clearly the plan to write a bit of code that what onetepconv does proved a little difficult nonetheless this is
+# So clearly the plan to write a bit of code that does what onetepconv does proved a little difficult nonetheless this is
 # roughly done for the simple cases - will now add the more difficult cases and move on from there. Simples ;)
 
 
-# TODO add the difficult cases and add a use me thingy magic.
-# TODO add a plotting tool like that seen in onetepconvmaster/libs/csv thingy should be fairly simple.
-# Actually todo number 2 maybe over kill since the onetepmaster conv call seems to work somewhatwell.
+# TODO LIST - in order of importance
 # TODO make it create a small text file at output dir with the input params so people can see what it's done.
-# TODO change the os.mkdirs to os.makedirs(pathexists = ok) as seen in other code.
+# TODO add a catch all incase the input file has a atomic sites listing but NOT a blockspecies listing
+# TODO add the difficult cases make them use the damn library. as of current it does not which is meh.
+# change the os.mkdirs to os.makedirs(pathexists = ok) as seen in other code. √√
+# add the difficult cases and add a use me thingy magic. √√
+
+
 def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=True, verbose=True, checkfold=True):
-    # Am i going to need a catch all for people using %block vs %BLOCK lets pray not team - ok this is done cusae
+    # Am i going to need a catch all for people using %block vs %BLOCK lets pray not team - ok this is done cause
     # life is hard
     if uselibs == True:
         print(
             'uselibs has been read as True, this will use the ngwf num defined in Buds pt. Switch this off to use the '
-            'initial ngwfs within the file.')
+            'initial ngwf settings within the file.')
 
-    print('if your result is wildly different from that seen in the pt consider changing the pt for future users')
+    print('if your result is wildly different from that seen in the pt consider changing the pt for future users but then again the pt is mostly there for an index')
     if checkfold:
         if len(os.listdir(outputdir)) > 3:
             print('alot of things exist in this directory - i suggest you set your output dir as a clean folder.')
@@ -63,15 +66,18 @@ def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=Tr
         vprint('lines in file = ' + str(len(lizstrip)), verbose)
     # Second step. new list, that will To those looking for efficiency, i attempted the following as a list
     # comprehension however got confused and decided to use the codemallet.
+    # The onetepconv docs say write_forces needs to be T and that singlepoint calculations should be on. The next part checks that
+
+    # Sometimes list comprehensions are easier.
+    lizstrip = [line for line in lizstrip if not line.startswith('task') if not line.startswith('write_forces')] # remove the task line if it exists
+    lizstrip.insert(0, 'task : singlepoint') # Add a new taskline always
+    lizstrip.insert(1, 'write_forces T') # Add a new write_forces line always
+
     low = lizstrip.index("%BLOCK SPECIES")
     high = lizstrip.index("%ENDBLOCK SPECIES")
     changelist = lizstrip[low:high + 1]  # generate a new list to be changed.
 
-    # Boom got all the stuff i need. #Ignore this, its dumb
-    # for element in changelist[1:-1]:
-    #    print(element)
-
-    os.mkdir(outputdir + '/ngwf_num')
+    os.makedirs(outputdir + '/ngwf_num', exist_ok=True)
     # Checking my dictionary if the flag is raised.
     if simple:
         vprint('simple mode is on', verbose)
@@ -119,23 +125,45 @@ def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=Tr
             newlist.append('%ENDBLOCK SPECIES')  # Put the endblock on
 
             lizstrip[low:high + 1] = newlist  # Put the changed values in
-            os.mkdir(outputdir + '/ngwf_num/' + str(counter))
+            os.makedirs(outputdir + '/ngwf_num/' + str(counter), exist_ok=True)
             with open(outputdir + '/ngwf_num/' + str(counter) + '/ngwf_num.dat', "w") as outfile:  # Write it bois
                 outfile.write("\n".join(lizstrip))
             vprint(counter, verbose)
             counter += 1
+
+
     else:
-        vprint('a non-simple mode has not been coded yet pest bud to do it', verbose)
+        if uselibs:
+            print('using library not been implemented for non simple cases yet sorry turn this flag off and rerun')
+        else:
+        print('completeness mode has been selected, generating the full set of possible ngwf values instead')
+        tmplist = changelist
+        for element in changelist:
+            if not element.startswith('%'):
+                # print(element)
+                # print(element.split(' ')[3])
+                for count in range(-1, numbersteps-1):
+                    #print(count)
+                    # print(int(element.split(' ')[3]) + count)
+                    changeline = "{0} {1} {2}".format(' '.join(element.split(' ')[0:3]), int(element.split(' ')[3]) + count, element.split(' ')[4])
+                    # print(changeline)
+                    tmplist = [x for x in changelist if not x.startswith(changeline[0:3])]
+                    tmplist.insert(1, changeline)
+                    print(tmplist)
+
+                    os.makedirs('{0}/ngwf_num/{1}_{2}'.format(outputdir, element.split(' ')[0], count+1), exist_ok=True) # Make the dir
+                    # write to list
+                    lizstrip[low:high + 1] = tmplist
+                    with open('{0}/ngwf_num/{1}_{2}/ngwf_num.dat'.format(outputdir, element.split(' ')[0], count+1),
+                              "w") as outfile:  # Write it bois
+                        outfile.write("\n".join(lizstrip))
+
     vprint('seems to be all done - ' + str(counter) + ' folders made', verbose)
     print('if your result is wildly different from that seen in the pt consider changing the pt for future users')
 
 
 def conv_ngwf_rad(input_file, outputdir, numbersteps=4, stepsize=0.5, uselibs=False, simple=True, verbose=True,
                   checkfold=True):
-    if uselibs == True:
-        print(
-            'uselibs has been read as True, this will use the ngwf num defined in Buds pt. Switch this off to use the '
-            'initial ngwfs within the file.')
 
     # Am i going to need a catch all for people using %block vs %BLOCK lets pray not team - ok this is done cusae life is hard
     if uselibs == True:
@@ -173,7 +201,7 @@ def conv_ngwf_rad(input_file, outputdir, numbersteps=4, stepsize=0.5, uselibs=Fa
     # for element in changelist[1:-1]:
     #    print(element)
 
-    os.mkdir(outputdir + '/ngwf_rad')
+    os.makedirs(outputdir + '/ngwf_rad', exist_ok=True)
     # Checking my dictionary if the flag is raised.
     if simple:
         vprint('simple mode is on', verbose)
@@ -223,12 +251,41 @@ def conv_ngwf_rad(input_file, outputdir, numbersteps=4, stepsize=0.5, uselibs=Fa
             newlist.append('%ENDBLOCK SPECIES')  # Put the endblock on
 
             lizstrip[low:high + 1] = newlist  # Put the changed values in
-            os.mkdir(outputdir + '/ngwf_rad/' + str(counter))
+            os.makedirs(outputdir + '/ngwf_rad/' + str(counter), exist_ok=True)
             with open(outputdir + '/ngwf_rad/' + str(counter) + '/ngwf_rad.dat', "w") as outfile:  # Write it bois
                 outfile.write("\n".join(lizstrip))
             vprint(counter, verbose)
             counter += 1
+
     else:
-        vprint('a non-simple mode has not been coded yet pest bud to do it', verbose)
-    vprint('seems to be all done - ' + str(counter) + ' folders made', verbose)
+        if uselibs:
+            print('using library is not implemented for nonsimple cases yet')
+
+        else:
+                    print(
+                        'completeness mode has been selected, generating the full set of possible ngwf values instead')
+                    tmplist = changelist
+                    for element in changelist:
+                        if not element.startswith('%'):
+                            # print(element)
+                            # print(element.split(' ')[3])
+                            for count in range(0, numbersteps):
+                                # print(count)
+                                # print(int(element.split(' ')[3]) + count)
+                                changeline = "{0} {1} {2}".format(' '.join(element.split(' ')[0:3]),
+                                                                  element.split(' ')[3],
+                                                                  float(element.split(' ')[4]) + (count * stepsize))
+                                # print(changeline)
+                                tmplist = [x for x in changelist if not x.startswith(changeline[0:3])]
+                                tmplist.insert(1, changeline)
+                                print(tmplist)
+
+                                os.makedirs('{0}/ngwf_rad/{1}_{2}'.format(outputdir, element.split(' ')[0], count+1), exist_ok=True) # Make the dir
+                                # write to list
+                                lizstrip[low:high + 1] = tmplist
+                                with open('{0}/ngwf_rad/{1}_{2}/ngwf_rad.dat'.format(outputdir, element.split(' ')[0], count+1),
+                                        "w") as outfile:  # Write it bois
+                                    outfile.write("\n".join(lizstrip))
+
     print('if your result is wildly different from that seen in the pt consider changing the pt for future users')
+
