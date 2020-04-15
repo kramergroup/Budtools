@@ -3,6 +3,7 @@ import re
 from i_functions import vprint
 import os
 
+
 # Since the onetepconv master availible from the onetep utils seems to be somewhat broken in its ability to actually
 # make files correctly i've instead taken it into my own hands to wewrite it however my bash skills are severly limited
 # and i refuse to use awk unironically when string handling can be around 800x simplier - oh lord was i wrong
@@ -55,7 +56,6 @@ def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=Tr
             'uselibs has been read as True, this will use the ngwf num defined in Buds pt. Switch this off to use the '
             'initial ngwf settings within the file.')
 
-    print('if your result is wildly different from that seen in the pt consider changing the pt for future users but then again the pt is mostly there for an index')
     if checkfold:
         if len(os.listdir(outputdir)) > 3:
             print('alot of things exist in this directory - i suggest you set your output dir as a clean folder.')
@@ -80,9 +80,10 @@ def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=Tr
     # The onetepconv docs say write_forces needs to be T and that singlepoint calculations should be on. The next part checks that
 
     # Sometimes list comprehensions are easier.
-    lizstrip = [line for line in lizstrip if not line.startswith('task') if not line.startswith('write_forces')] # remove the task line if it exists
-    lizstrip.insert(0, 'task : singlepoint') # Add a new taskline always
-    lizstrip.insert(1, 'write_forces T') # Add a new write_forces line always
+    lizstrip = [line for line in lizstrip if not line.startswith('task') if
+                not line.startswith('write_forces')]  # remove the task line if it exists
+    lizstrip.insert(0, 'task : singlepoint')  # Add a new taskline always
+    lizstrip.insert(1, 'write_forces T')  # Add a new write_forces line always
 
     low = lizstrip.index("%BLOCK SPECIES")
     high = lizstrip.index("%ENDBLOCK SPECIES")
@@ -152,40 +153,44 @@ def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=Tr
                 if not element.startswith('%'):
                     # print(element)
                     # print(element.split(' ')[3])
-                    for count in range(-1, numbersteps-1):
-                        #print(count)
+                    for count in range(-1, numbersteps - 1):
+                        # print(count)
                         # print(int(element.split(' ')[3]) + count)
-                        changeline = "{0} {1} {2}".format(' '.join(element.split(' ')[0:3]), int(element.split(' ')[3]) + count, element.split(' ')[4])
+                        changeline = "{0} {1} {2}".format(' '.join(element.split(' ')[0:3]),
+                                                          int(element.split(' ')[3]) + count, element.split(' ')[4])
                         # print(changeline)
                         tmplist = [x for x in changelist if not x.startswith(changeline[0:3])]
                         tmplist.insert(1, changeline)
                         print(tmplist)
 
-                        os.makedirs('{0}/ngwf_num/{1}_{2}'.format(outputdir, element.split(' ')[0], count+1), exist_ok=True) # Make the dir
+                        os.makedirs('{0}/ngwf_num/{1}_{2}'.format(outputdir, element.split(' ')[0], count + 1),
+                                    exist_ok=True)  # Make the dir
                         # write to list
                         lizstrip[low:high + 1] = tmplist
-                        with open('{0}/ngwf_num/{1}_{2}/ngwf_num.dat'.format(outputdir, element.split(' ')[0], count+1),
-                                  "w") as outfile:  # Write it bois
+                        with open(
+                                '{0}/ngwf_num/{1}_{2}/ngwf_num.dat'.format(outputdir, element.split(' ')[0], count + 1),
+                                "w") as outfile:  # Write it bois
                             outfile.write("\n".join(lizstrip))
 
         vprint('seems to be all done - ' + str(counter) + ' folders made', verbose)
     print('if your result is wildly different from that seen in the pt consider changing the pt for future users')
 
     with open('{0}/ngwf_num.txt'.format(outputdir), "w") as outfile:  # Write it bois
-        outfile.write('outputdir : {0}\ninputfile : {1}\nnumbersteps : {2}\nsimpleflag : {3} \nlibsused :  {4}'.format(outputdir, input_file, numbersteps, simple, uselibs))
-
+        outfile.write(
+            'outputdir : {0}\ninputfile : {1}\nnumbersteps : {2}\nsimpleflag : {3} \nlibsused :  {4}'.format(outputdir,
+                                                                                                             input_file,
+                                                                                                             numbersteps,
+                                                                                                             simple,
+                                                                                                             uselibs))
 
 
 def conv_ngwf_rad(input_file, outputdir, numbersteps=4, stepsize=0.5, uselibs=False, simple=True, verbose=True,
                   checkfold=True):
-
     # Am i going to need a catch all for people using %block vs %BLOCK lets pray not team - ok this is done cusae life is hard
     if uselibs == True:
         print(
             'uselibs has been read as True, this will use the ngwf num defined in Buds pt. Switch this off to use the '
             'initial ngwfs within the file.')
-
-    print('if your result is wildly different from that seen in the pt consider changing the pt for future users')
     if checkfold:
         if len(os.listdir(outputdir)) > 3:
             print('alot of things exist in this directory - i suggest you set your output dir as a clean folder.')
@@ -258,7 +263,7 @@ def conv_ngwf_rad(input_file, outputdir, numbersteps=4, stepsize=0.5, uselibs=Fa
                                                                         element.split(' ')[2],
                                                                         element.split(' ')[3],
                                                                         str(int(element.split(' ')[4]) + (
-                                                                                    counter * stepsize))))
+                                                                                counter * stepsize))))
                         else:
                             print(element.split(' ') + ' element not found - im gunna die now')
 
@@ -272,37 +277,32 @@ def conv_ngwf_rad(input_file, outputdir, numbersteps=4, stepsize=0.5, uselibs=Fa
             counter += 1
 
     else:
-        if uselibs:
-            print('using library is not implemented for nonsimple cases yet')
+        print(
+            'completeness mode has been selected, generating the full set of possible ngwf values instead')
+        tmplist = changelist
+        for element in changelist:
+            if not element.startswith('%'):
+                # print(element)
+                # print(element.split(' ')[3])
+                for count in range(0, numbersteps):
+                    # print(count)
+                    # print(int(element.split(' ')[3]) + count)
+                    changeline = "{0} {1} {2}".format(' '.join(element.split(' ')[0:3]),
+                                                      element.split(' ')[3],
+                                                      float(element.split(' ')[4]) + (count * stepsize))
+                    # print(changeline)
+                    tmplist = [x for x in changelist if not x.startswith(changeline[0:3])]
+                    tmplist.insert(1, changeline)
+                    print(tmplist)
 
-        else:
-                    print(
-                        'completeness mode has been selected, generating the full set of possible ngwf values instead')
-                    tmplist = changelist
-                    for element in changelist:
-                        if not element.startswith('%'):
-                            # print(element)
-                            # print(element.split(' ')[3])
-                            for count in range(0, numbersteps):
-                                # print(count)
-                                # print(int(element.split(' ')[3]) + count)
-                                changeline = "{0} {1} {2}".format(' '.join(element.split(' ')[0:3]),
-                                                                  element.split(' ')[3],
-                                                                  float(element.split(' ')[4]) + (count * stepsize))
-                                # print(changeline)
-                                tmplist = [x for x in changelist if not x.startswith(changeline[0:3])]
-                                tmplist.insert(1, changeline)
-                                print(tmplist)
-
-                                os.makedirs('{0}/ngwf_rad/{1}_{2}'.format(outputdir, element.split(' ')[0], count+1), exist_ok=True) # Make the dir
-                                # write to list
-                                lizstrip[low:high + 1] = tmplist
-                                with open('{0}/ngwf_rad/{1}_{2}/ngwf_rad.dat'.format(outputdir, element.split(' ')[0], count+1),
-                                        "w") as outfile:  # Write it bois
-                                    outfile.write("\n".join(lizstrip))
-
-    print('if your result is wildly different from that seen in the pt consider changing the pt for future users')
+                    os.makedirs('{0}/ngwf_rad/{1}_{2}'.format(outputdir, element.split(' ')[0], count + 1),
+                                exist_ok=True)  # Make the dir
+                    # write to list
+                    lizstrip[low:high + 1] = tmplist
+                    with open('{0}/ngwf_rad/{1}_{2}/ngwf_rad.dat'.format(outputdir, element.split(' ')[0], count + 1),
+                              "w") as outfile:  # Write it bois
+                        outfile.write("\n".join(lizstrip))
     with open('{0}/ngwf_rad.txt'.format(outputdir), "w") as outfile:  # Write it bois
         outfile.write('outputdir : {0}\ninputfile : {1}\nnumbersteps : {2}\nstepsize : {3}\nsimpleflag : {4} '
                       '\nlibsused :  {5}'.format(outputdir, input_file, numbersteps, stepsize, simple, uselibs))
-
+    print('if your result is wildly different from that seen in the pt consider changing the pt for future users')
