@@ -27,12 +27,12 @@ import os
 # roughly done for the simple cases - will now add the more difficult cases and move on from there. Simples ;)
 
 # TODO LIST - in order of importance
-# make it create a small text file at output dir with the input params so people can see what it's done. √√
-# TODO 2. add a catch all incase the input file has a atomic sites listing but NOT a blockspecies listing
+# make it create a small text file at output dir with the input params so people can see what it's done. √√ Done Wednes
+# 2. add a catch all incase the input file has a atomic sites listing but NOT a blockspecies listing √√ Done Thurs
 # TODO 3. add the difficult cases make them use the damn library. as of current it does not which is meh.
-# 4. change the os.mkdirs to os.makedirs(pathexists = ok) as seen in other code. √√
+# 4. change the os.mkdirs to os.makedirs(pathexists = ok) as seen in other code. √√ Done Wednes
 # TODO 5. verbose the less simple cases just in case it crashes for someone else. Meh this is not my job.
-# 6. add the difficult cases and add a use me thingy magic. √√
+# 6. add the difficult cases and add a use me thingy magic. √√ Done Wednes
 # TODO 7. Allow the input to be a xyz file maybe idk since i have the onetepmaker able to put hubbard u stuff in.
 
 # Thoughts list
@@ -41,6 +41,8 @@ import os
 # 2. The way i wrote the non simple case looks a lot cleaner than the simple case which is sort of ironic,
 # 3. By making it check that the element is in my pt it effectively forces people to use my pt and update my pt. So i
 # see this as an absolute win! - may be a bit annoying for some but meh i hate you all
+# 4. Since alot of the code between the functions are v.similar it would've maybe been wise to just write a function
+# for the similar parts and call that.
 
 # Not sure on  scaling between encut and ngwf etc from what i've gathered encut seems to hold fairly steady in onetep
 # and i have no info on ngwf
@@ -70,7 +72,7 @@ def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=Tr
         # plan to not use awk has at this point seemed futile
         if line2.startswith('%'):
             vprint(line2, verbose)
-            line2 = line2.upper()  # Incase someone puts things in iwth lower case which may cause issues.
+            line2 = line2.upper()  # Incase someone puts things in with lower case which may cause issues.
         lizstrip.append(line2)
         liz.append(line)  # write the original file to a list to another file just to make sure.
         vprint('file is opened and written', verbose)
@@ -84,6 +86,29 @@ def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=Tr
                 not line.startswith('write_forces')]  # remove the task line if it exists
     lizstrip.insert(0, 'task : singlepoint')  # Add a new taskline always
     lizstrip.insert(1, 'write_forces T')  # Add a new write_forces line always
+
+    if '%BLOCK SPECIES' in lizstrip:
+        print('%BLOCK SPECIES FOUND')
+        low = lizstrip.index("%BLOCK SPECIES")
+        high = lizstrip.index("%ENDBLOCK SPECIES")
+    else:
+        print('%BLOCK SPECIES NOT FOUND - generating one from another block')
+        print("god i hope you have a species_pot block. if you don't please stop using this and fix your input file")
+        place2slide = lizstrip.index('%BLOCK SPECIES_POT')
+        elelist = [x.split(' ')[0] for x in lizstrip[place2slide+1:lizstrip.index('%ENDBLOCK SPECIES_POT')]]
+        # From this elelist generate a standard blockspecies seems simple enough.
+        speclist = ["{0} {1} {2} {3} {4}".format(pt.get(x).get('symbol'),
+                                                 pt.get(x).get('symbol'),
+                                                 pt.get(x).get('number'),
+                                                 pt.get('Li').get('ot').get('ngwf_num'),
+                                                 pt.get('Li').get('ot').get('ngwf_rad')) for x in elelist]
+        # pop it back into the starting list.
+        speclist.insert(0,'%BLOCK SPECIES')
+        speclist.append('%ENDBLOCK SPECIES')
+        speclist.append('')
+
+        vprint('species block has been generated from you potential block', verbose)
+        lizstrip[place2slide:place2slide] = speclist
 
     low = lizstrip.index("%BLOCK SPECIES")
     high = lizstrip.index("%ENDBLOCK SPECIES")
@@ -211,6 +236,29 @@ def conv_ngwf_rad(input_file, outputdir, numbersteps=4, stepsize=0.5, uselibs=Fa
         vprint('lines in file = ' + str(len(lizstrip)), verbose)
     # Second step. new list, that will To those looking for efficiency, i attempted the following as a list
     # comprehension however got confused and decided to use the codemallet.
+    if '%BLOCK SPECIES' in lizstrip: # Incase the user inputs a damn input without a %block species line !!!
+        print('%BLOCK SPECIES FOUND')
+        low = lizstrip.index("%BLOCK SPECIES")
+        high = lizstrip.index("%ENDBLOCK SPECIES")
+    else:
+        print('%BLOCK SPECIES NOT FOUND - generating one from another block')
+        print("god i hope you have a species_pot block. if you don't please stop using this and fix your input file")
+        place2slide = lizstrip.index('%BLOCK SPECIES_POT')
+        elelist = [x.split(' ')[0] for x in lizstrip[place2slide + 1:lizstrip.index('%ENDBLOCK SPECIES_POT')]]
+        # From this elelist generate a standard blockspecies seems simple enough.
+        speclist = ["{0} {1} {2} {3} {4}".format(pt.get(x).get('symbol'),
+                                                 pt.get(x).get('symbol'),
+                                                 pt.get(x).get('number'),
+                                                 pt.get('Li').get('ot').get('ngwf_num'),
+                                                 pt.get('Li').get('ot').get('ngwf_rad')) for x in elelist]
+        # pop it back into the starting list.
+        speclist.insert(0, '%BLOCK SPECIES')
+        speclist.append('%ENDBLOCK SPECIES')
+        speclist.append('')
+
+        vprint('species block has been generated from you potential block', verbose)
+        lizstrip[place2slide:place2slide] = speclist
+
     low = lizstrip.index("%BLOCK SPECIES")
     high = lizstrip.index("%ENDBLOCK SPECIES")
     changelist = lizstrip[low:high + 1]  # generate a new list to be changed.
