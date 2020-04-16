@@ -1,0 +1,5 @@
+outputdir : ../onetepconv/outputdir
+inputfile : ../onetepconv/32LCOsys.dat
+numbersteps : 4
+simpleflag : False 
+libsused :  False

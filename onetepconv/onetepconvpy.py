@@ -172,7 +172,6 @@ def conv_ngwf_num(input_file, outputdir, numbersteps=4, uselibs=False, simple=Tr
                                 "w") as outfile:  # Write it bois
                             outfile.write("\n".join(lizstrip))
 
-        vprint('seems to be all done - ' + str(counter) + ' folders made', verbose)
     print('if your result is wildly different from that seen in the pt consider changing the pt for future users')
 
     with open('{0}/ngwf_num.txt'.format(outputdir), "w") as outfile:  # Write it bois
