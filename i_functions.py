@@ -43,6 +43,8 @@ def vprint(s, verbose=False):
 # Weirdly if it saves the structure as a cif. opens said cif and makes it a poscar it is different to
 # writing as a pos immediately. yeah, dumb i know?
 
+# TODO - fix the consistant issues with it making 2 surfaces per unit cell if the input params are such.
+# Maybe this involves rewriting pmg in part but idk at this point it's too annoying
 #Pretty sure Andrea has something similar to this so if this isn't working for you use his?
 def slabsets(inputfile, outputdir, plane2cut, vacmin=4, vacmax=16, numberoflayers=6):
     # Plane to cut should be in pymatgen format miller planes - [A, B ,C] otherthan that it basically calls on pymatgen
@@ -646,12 +648,14 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False):
                         pt.get(element).get("ot").get("ngwf_num")) + ' ' + str(
                         pt.get(element).get("ot").get("ngwf_rad")) + '\n')
                     # TODO - find an adequate method to define cluster location of pseudos - also should discuss psuedos to use with someone
+                    # can add the psuedos to use to my dictionary that'll be a good use for it. :)
                     pottyblock.append(str(element) + ' ' + str(element) + '!Bfiddle\n')
                     if pt.get(element).get("hubbardu"):
                         # TODO - implement a method of asking for the type of u values wanted (as of current only cedar is added)
                         hubbardblock.append('{0} {1} {2} {3} {4} {5}\n'.format(str(element), str(
                             pt.get(element).get("U").get("cedar").get("Lval")), str(
                             pt.get(element).get("U").get("cedar").get("Uval")), str(
+                            pt.get(element).get("U").get("cedar").get("Jval")), str(
                             pt.get(element).get("U").get("cedar").get("Z")), str(
                             pt.get(element).get("U").get("cedar").get("alpha")), str(
                             pt.get(element).get("U").get("cedar").get("sigma"))))
