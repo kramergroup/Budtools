@@ -1,14 +1,14 @@
 import i_functions
 import os
 # workdir = '/Users/budmacaulay/Desktop/1tnv'
-#potcardir = '/Users/budmacaulay/POT_GGA_PAW_PBE/'
+# potcardir = '/Users/budmacaulay/POT_GGA_PAW_PBE/'
 
 # workdir = 'your/directory/to/work/over'
 # potcardir = 'your/potcar/directory/POT_GGA_PAW_PBE/'
 
 # Checking my function calls work! -
 # slabsets is a bit dodgy and i'm unsure why -> based on how it defines 'layers' I guess.
-i_functions.slabsets('/Users/budmacaulay/Desktop/BULK/POSCAR', '/Users/budmacaulay/Desktop/testing', [0, 0, 1], vacmin=4, vacmax=16, numberoflayers=2)
+i_functions.slabsets('/Users/budmacaulay/Desktop/BULK/POSCAR', '/Users/budmacaulay/Desktop/testing', [0, 0, 1], vacmin=4, vacmax=15, numberoflayers=5)
 
 i_functions.pos2pot(workdir, potcardir)
 
@@ -23,7 +23,7 @@ for subdir, dirs, files in os.walk(str(workdir)):
         if file.endswith('POSCAR'):
             i_functions.dyna(subdir + '/POSCAR', 'bulk')
 
-i_functions.qscript2folder(workdir, 'dir/to/qscriptsstuff/')
+i_functions.qscript2folder(workdir, '/Users/budmacaulay/PycharmProjects/Budtools/qscriptsstuff')
 
 i_functions.json2folder(workdir)
 
@@ -45,6 +45,12 @@ suppy = i_functions.supers('/Users/budmacaulay/Desktop/nuu/POSCAR', workdir, [2,
 
 i_functions.vasp2onetep(workdir, '/Users/budmacaulay/Desktop/pycoderun/test.dat') # Needs some tests
 
+i_functions.supers('/Users/budmacaulay/Desktop/19april/19april/104vac5/test.xyz', '/Users/budmacaulay/Desktop/19april/19april/104vac5/2x', [2,2,1])
+
 
 # TODO - make a onetep qscript thinggy - seems like effort tbh, as of current just porting my current one over seems
 #  easier
+
+for i in [5, 7, 9, 11, 13, 15]:
+    i_functions.supers('/Users/budmacaulay/Desktop/LCOotconv/vasp/104vac' + str(i) + '/POSCAR',
+                       '/Users/budmacaulay/Desktop/LCOotconv/vasp/211sups/104vac' + str(i) + '/', [2, 2, 1])

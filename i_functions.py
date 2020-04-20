@@ -32,6 +32,7 @@ from pt import pt
 def the_key(tol, val):
     return val // tol
 
+
 # verbose printing used on a few functions. Perhaps i should have levels for this. Or use logging
 def vprint(s, verbose=False):
     if verbose:
@@ -45,7 +46,7 @@ def vprint(s, verbose=False):
 
 # TODO - fix the consistant issues with it making 2 surfaces per unit cell if the input params are such.
 # Maybe this involves rewriting pmg in part but idk at this point it's too annoying
-#Pretty sure Andrea has something similar to this so if this isn't working for you use his?
+# Pretty sure Andrea has something similar to this so if this isn't working for you use his?
 def slabsets(inputfile, outputdir, plane2cut, vacmin=4, vacmax=16, numberoflayers=6):
     # Plane to cut should be in pymatgen format miller planes - [A, B ,C] otherthan that it basically calls on pymatgen
     # to do the work - which is dodge
@@ -61,7 +62,7 @@ def slabsets(inputfile, outputdir, plane2cut, vacmin=4, vacmax=16, numberoflayer
     if vacmax == vacmin:
         vac = []
         vac = [vacmin]
-    else: # ok ignore this, this is so dumb
+    else:  # ok ignore this, this is so dumb
         vac = [None] * 5
         vacrange = ((vacmax - vacmin) / 3)
         vac[0] = 0
@@ -581,19 +582,32 @@ def tabluateitall(workdir):
     writer.save()
 
 
-# Should somewhat consistantly make onetep ready .dat files. As of current it will take a supplied blank .dat file to use
+# Should somewhat consistantly make onetep ready .dat files. As of current it will take a supplied blank (only needs jobtype, fucntional and encut) .dat file to use
 # TODO - could interface thise to ask for type of job and make the starting .dat itself but effort...
 # TODO - need to sync with the pt that i've written and from there import hubbard U/magmom variables - largely done...
 # As of current only ldos is the variable function call. It'd be cool to see the starting dat and decide from there
 # whether to include certain parameters but that's effort
 # TODO - may make it read the current incar file and check the ggau values used for hte vaspruns but that seems a little overkill.
-def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False):
+
+# TODO - Needs a consistancy check to ensure that ngwf_rad is not going to exceed the cell size cause that's caused me many issues.
+# Method - 1. Check all ngwfs from pt, if pt > cell print WARNING that maybe vasp would be a better consideration.
+# Continue to use the max possiblr ngwf radius from the unitcell (nearest 0.1 ang), (This shouldn't be too hard)
+# Cause as of current the ng
+
+# TODO - change the current prints to be verbose except those that are clearly important.
+def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True):
     from ase.io import read, write
     import os
     from pt import pt
 
     if outputdir == '0':
         outputdir = workdir
+
+    if ngwfcheck: # TODO tommorow - Put this in the block and so it iterates over all files. Simplies
+        print('performing ngwf check with lattice size to ensure you dont get spheres exceeding error')
+        t = read(
+            '/Users/budmacaulay/Desktop/LCOotconv/vasp/bulk/sup332/POSCAR').cell.real # Reading the lattice geometries
+        maxrad = (0.5 / 0.52) * abs(t.min())
 
     os.makedirs(outputdir + '/ONETEPRUN', exist_ok=True)  # Make the directory
     for subdir, dirs, files in os.walk(workdir):
@@ -649,10 +663,10 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False):
                         pt.get(element).get("ot").get("ngwf_rad")) + '\n')
                     # TODO - find an adequate method to define cluster location of pseudos - also should discuss psuedos to use with someone
                     # can add the psuedos to use to my dictionary that'll be a good use for it. :)
-                    pottyblock.append(str(element) + ' ' + pt.get(element).get("ot").get(psu) + '\n')
+                    pottyblock.append(str(element) + ' ' + pt.get(element).get("ot").get("psu") + '\n')
                     if pt.get(element).get("hubbardu"):
                         # TODO - implement a method of asking for the type of u values wanted (as of current only cedar is added)
-                        hubbardblock.append('{0} {1} {2} {3} {4} {5}\n'.format(str(element), str(
+                        hubbardblock.append('{0} {1} {2} {3} {4} {5} 0\n'.format(str(element), str(
                             pt.get(element).get("U").get("cedar").get("Lval")), str(
                             pt.get(element).get("U").get("cedar").get("Uval")), str(
                             pt.get(element).get("U").get("cedar").get("Jval")), str(
