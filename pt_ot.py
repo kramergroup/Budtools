@@ -9,6 +9,7 @@
 H_ot = {
     "ngwf_num": 2,
     "ngwf_rad": 6.0
+    "psu": '"~/PSONETEP/Heliumnotdefined"'
 }
 
 He_ot = {
@@ -17,7 +18,8 @@ He_ot = {
 
 Li_ot = {
     "ngwf_num": 4,
-    "ngwf_rad": 6.0
+    "ngwf_rad": 6.0,
+    "psu": '"~/PSONETEP/li-krgga6.recpot"'
 }
 
 Be_ot = {
@@ -27,7 +29,8 @@ Be_ot = {
 
 O_ot = {
     "ngwf_num": 4,
-    "ngwf_rad": 6.0
+    "ngwf_rad": 6.0,
+    "psu": '"~/PSONETEP/o-optgga1.recpot"'
 }
 # Generally tms can just have these values, it might work out that you need to reduce the rad if your cells are small
 Mn_ot = {
@@ -37,7 +40,8 @@ Mn_ot = {
 
 Co_ot = {
     "ngwf_num": 10,
-    "ngwf_rad": 6.0
+    "ngwf_rad": 6.0,
+    "psu": '"~/PSONETEP/co-optgga1.recpot"'
 }
 
 Ni_ot = {
