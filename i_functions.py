@@ -649,7 +649,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False):
                         pt.get(element).get("ot").get("ngwf_rad")) + '\n')
                     # TODO - find an adequate method to define cluster location of pseudos - also should discuss psuedos to use with someone
                     # can add the psuedos to use to my dictionary that'll be a good use for it. :)
-                    pottyblock.append(str(element) + ' ' + str(element) + '!Bfiddle\n')
+                    pottyblock.append(str(element) + ' ' + pt.get(element).get("ot").get(psu) + '\n')
                     if pt.get(element).get("hubbardu"):
                         # TODO - implement a method of asking for the type of u values wanted (as of current only cedar is added)
                         hubbardblock.append('{0} {1} {2} {3} {4} {5}\n'.format(str(element), str(
