@@ -594,20 +594,15 @@ def tabluateitall(workdir):
 # Continue to use the max possiblr ngwf radius from the unitcell (nearest 0.1 ang), (This shouldn't be too hard)
 # Cause as of current the ng
 
-# TODO - change the current prints to be verbose except those that are clearly important.
-def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True):
+#TODO
+# TEST  - the new ngwf method, the new format of ngwf strings e.t.c, generally this needs a lot of work. An oop outlook wudda helped alot tbh
+def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, verbose=True):
     from ase.io import read, write
     import os
     from pt import pt
 
     if outputdir == '0':
         outputdir = workdir
-
-    if ngwfcheck: # TODO tommorow - Put this in the block and so it iterates over all files. Simplies
-        print('performing ngwf check with lattice size to ensure you dont get spheres exceeding error')
-        t = read(
-            '/Users/budmacaulay/Desktop/LCOotconv/vasp/bulk/sup332/POSCAR').cell.real # Reading the lattice geometries
-        maxrad = (0.5 / 0.52) * abs(t.min())
 
     os.makedirs(outputdir + '/ONETEPRUN', exist_ok=True)  # Make the directory
     for subdir, dirs, files in os.walk(workdir):
@@ -657,10 +652,31 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True)
                     print(
                         "using buddy pt for " + pt.get(element).get("name") + " - check your ele exists, if not add it")
                     ldosblock.append(element)  # ldos line. Always made not always put in.
-                    # TODO - replace line below with a join() method - im too lazy
-                    eleblock.append((element + ' ') * 2 + str(pt.get(element).get("number")) + ' ' + str(
-                        pt.get(element).get("ot").get("ngwf_num")) + ' ' + str(
-                        pt.get(element).get("ot").get("ngwf_rad")) + '\n')
+                    if ngwfcheck:
+                        vprint('ngwf check flag is on', verbose)
+                        cart = read(outputdir + '/ONETEPRUN/' + subdir.replace(workdir, '') + '/test.xyz').cell
+                        smallestdim = min([i.max() for i in cart]) # This strictly isn't how things work but im lazy and this is gast
+                        maxngwf = round(smallestdim/2, 1) - 0.2 # The 0.2 is here just to make sure that things don't get hairy.
+                        # Compare maxngwf to the pt.
+                        if maxngwf < pt.get(element).get("ot").get("ngwf_rad"):
+                            print('maxngwf is smaller than pt value using maxngwf instead')
+                            eleblock.append('{0} {1} {2} {3} {4}\n'.format(element,
+                                                                           element,
+                                                                           pt.get(element).get("number"),
+                                                                           pt.get(element).get("ot").get("ngwf_num"),
+                                                                           maxngwf))
+                    # TEST this new format method √
+                    else:
+                        eleblock.append('{0} {1} {2} {3} {4}\n'.format(element,
+                                                                       element,
+                                                                       pt.get(element).get("number"),
+                                                                       pt.get(element).get("ot").get("ngwf_num"),
+                                                                       pt.get(element).get("ot").get("ngwf_rad")))
+
+
+                        #eleblock.append((element + ' ') * 2 + str(pt.get(element).get("number")) + ' ' + str(
+                        #    pt.get(element).get("ot").get("ngwf_num")) + ' ' + str(
+                        #    pt.get(element).get("ot").get("ngwf_rad")) + '\n')
                     # TODO - find an adequate method to define cluster location of pseudos - also should discuss psuedos to use with someone
                     # can add the psuedos to use to my dictionary that'll be a good use for it. :)
                     pottyblock.append(str(element) + ' ' + pt.get(element).get("ot").get("psu") + '\n')
@@ -699,7 +715,8 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True)
                 newdat = [dat, '\n', eleblock, '\n', pottyblock, '\n', hubbardblock, '\n', latticeblock, '\n', posblock]
                 newdat = [val for sublist in newdat for val in sublist]
 
-                with open(outputdir + '/ONETEPRUN/' + subdir.replace(workdir, '') + '/automade.dat',
+                with open(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/automade.dat',
                           'w+') as outfile:
                     for element in newdat:
                         outfile.write(element)
+
