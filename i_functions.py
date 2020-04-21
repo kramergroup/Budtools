@@ -596,7 +596,7 @@ def tabluateitall(workdir):
 
 #TODO
 # TEST  - the new ngwf method, the new format of ngwf strings e.t.c, generally this needs a lot of work. An oop outlook wudda helped alot tbh
-def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, verbose=True):
+def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True, verbose=True):
     from ase.io import read, write
     import os
     from pt import pt
@@ -604,14 +604,14 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, verbose=True):
     if outputdir == '0':
         outputdir = workdir
 
-    os.makedirs(outputdir + '/ONETEPRUN', exist_ok=True)  # Make the directory
+    os.makedirs(outputdir + '/ONETEPMAKER', exist_ok=True)  # Make the directory
     for subdir, dirs, files in os.walk(workdir):
         for file in files:
             if file.endswith('POSCAR'):
                 print(os.path.join(subdir))
-                os.makedirs(outputdir + '/ONETEPRUN/' + subdir.replace(workdir, ''), exist_ok=True)
+                os.makedirs(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, ''), exist_ok=True)
                 # ASE - good at this shit - successfully makes an xyz - pretty nicely perhaps shudda looked at this before.
-                write(outputdir + '/ONETEPRUN/' + subdir.replace(workdir, '') + '/test.xyz',
+                write(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/test.xyz',
                       read(subdir + '/POSCAR'))
 
                 incfile = open(subdir + '/INCAR', 'r')  # Grabs the encut from the file. could func this with the dict.
@@ -630,7 +630,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, verbose=True):
                 latticeblock.append('%ENDBLOCK LATTICE_CART\n')
 
                 posblock = []
-                testfile = open(outputdir + '/ONETEPRUN/' + subdir.replace(workdir, '') + '/test.xyz', 'r')
+                testfile = open(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/test.xyz', 'r')
                 for line in testfile:
                     posblock.append(line)
                 posblock.pop(0)  # remove the first two lines they're useless
@@ -654,9 +654,9 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, verbose=True):
                     ldosblock.append(element)  # ldos line. Always made not always put in.
                     if ngwfcheck:
                         vprint('ngwf check flag is on', verbose)
-                        cart = read(outputdir + '/ONETEPRUN/' + subdir.replace(workdir, '') + '/test.xyz').cell
+                        cart = read(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/test.xyz').cell
                         smallestdim = min([i.max() for i in cart]) # This strictly isn't how things work but im lazy and this is gast
-                        maxngwf = round(smallestdim/2, 1) - 0.2 # The 0.2 is here just to make sure that things don't get hairy.
+                        maxngwf = round(smallestdim/(0.5/0.52), 1) - 0.2 # The 0.2 is here just to make sure that things don't get hairy.
                         # Compare maxngwf to the pt.
                         if maxngwf < pt.get(element).get("ot").get("ngwf_rad"):
                             print('maxngwf is smaller than pt value using maxngwf instead')
@@ -665,6 +665,12 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, verbose=True):
                                                                            pt.get(element).get("number"),
                                                                            pt.get(element).get("ot").get("ngwf_num"),
                                                                            maxngwf))
+                        else:
+                            eleblock.append('{0} {1} {2} {3} {4}\n'.format(element,
+                                                                           element,
+                                                                           pt.get(element).get("number"),
+                                                                           pt.get(element).get("ot").get("ngwf_num"),
+                                                                           pt.get(element).get("ot").get("ngwf_rad")))
                     # TEST this new format method √
                     else:
                         eleblock.append('{0} {1} {2} {3} {4}\n'.format(element,
@@ -715,7 +721,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, verbose=True):
                 newdat = [dat, '\n', eleblock, '\n', pottyblock, '\n', hubbardblock, '\n', latticeblock, '\n', posblock]
                 newdat = [val for sublist in newdat for val in sublist]
 
-                with open(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/automade.dat',
+                with open(outputdir + '/ONETEPMAKER' + subdir.replace(workdir, '') + '/automade.dat',
                           'w+') as outfile:
                     for element in newdat:
                         outfile.write(element)
