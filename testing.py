@@ -51,6 +51,14 @@ i_functions.supers('/Users/budmacaulay/Desktop/19april/19april/104vac5/test.xyz'
 # TODO - make a onetep qscript thinggy - seems like effort tbh, as of current just porting my current one over seems
 #  easier
 
-for i in [5, 7, 9, 11, 13, 15]:
+for i in [5, 7, 9, 11, 13, 15, 17, 19, 21]:
+    i_functions.slabsets('/Users/budmacaulay/Desktop/LCOotconv7layer/POSCAR',
+                         '/Users/budmacaulay/Desktop/LCOotconv7layer/vasp', [1, 0, 4], vacmin=i, vacmax=i,
+                         numberoflayers=7)
+
+for i in [5, 7, 9 ,11, 13, 15, 17, 19, 21]:
     i_functions.supers('/Users/budmacaulay/Desktop/LCOotconv/vasp/104vac' + str(i) + '/POSCAR',
-                       '/Users/budmacaulay/Desktop/LCOotconv/vasp/211sups/104vac' + str(i) + '/', [2, 2, 1])
+                       '/Users/budmacaulay/Desktop/LCOotconv/vasp/211sups/104vac' + str(i) + '/', [2, 1, 1])
+
+for i in [[1,1,1], [1,2,1], [2,2,1], [2,2,2], [3,2,2], [3,3,2], [3,3,3], [4,3,3], [4,4,3], [4,4,4]]:
+    i_functions.supers('/Users/budmacaulay/Desktop/LCOotbulk/bulk/POSCAR', '/Users/budmacaulay/Desktop/wednesdayot/supercelltest', i)

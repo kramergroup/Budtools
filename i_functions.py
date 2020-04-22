@@ -604,6 +604,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
     if outputdir == '0':
         outputdir = workdir
 
+    listofchanged = []
     os.makedirs(outputdir + '/ONETEPMAKER', exist_ok=True)  # Make the directory
     for subdir, dirs, files in os.walk(workdir):
         for file in files:
@@ -665,6 +666,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
                                                                            pt.get(element).get("number"),
                                                                            pt.get(element).get("ot").get("ngwf_num"),
                                                                            maxngwf))
+                            listofchanged.append(subdir)
                         else:
                             eleblock.append('{0} {1} {2} {3} {4}\n'.format(element,
                                                                            element,
@@ -712,7 +714,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
                 counter = 0
                 while counter < len(dat):
                     if dat[counter].startswith('cutoff_energy'):
-                        dat[counter] = 'cutoff_energy : ' + str(encut[0])
+                        dat[counter] = 'cutoff_energy : {} eV\n'.format(encut[0])
                     counter += 1
 
                 if ldos:
@@ -721,8 +723,13 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
                 newdat = [dat, '\n', eleblock, '\n', pottyblock, '\n', hubbardblock, '\n', latticeblock, '\n', posblock]
                 newdat = [val for sublist in newdat for val in sublist]
 
-                with open(outputdir + '/ONETEPMAKER' + subdir.replace(workdir, '') + '/automade.dat',
+                with open(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/automade.dat',
                           'w+') as outfile:
                     for element in newdat:
                         outfile.write(element)
 
+
+    # A small block to now write the list of all changed runs to a text document.
+    listofchanged = list(dict.fromkeys(listofchanged))
+    with open('{0}/ngwftoosmall.txt'.format(outputdir), 'w') as ngwffile:
+        ngwffile.write("\n".join(str(item) for item in listofchanged))
