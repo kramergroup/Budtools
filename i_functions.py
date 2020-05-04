@@ -744,12 +744,8 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
 # TODO fix this
 #  Should work similar to my prior dyna2, needs some testing i guess
 def onetepdyna(workdat, initiallayers, style=0, bulklay=None, verbose=True):
-    from pymatgen import Structure
-    from pymatgen.io.vasp import Poscar
     import itertools as itt
     from functools import partial
-    import numpy as np
-
     # Open the dat file and read it blah blah
     readlist = []
     with open(workdat) as readfile:
@@ -777,7 +773,7 @@ def onetepdyna(workdat, initiallayers, style=0, bulklay=None, verbose=True):
         # Do nothing. As onetep turns all atoms on by default.
         print('style = 0 doing nothing')
     else:
-        if bulklay = None:
+        if bulklay is None:
             # Need to change all blocks to have elem_1 and elem_2 as their tags.
             if initiallayers % 2 == 0:  # making the number of layers make sense
                 vprint('initiallayers is even', verbose)

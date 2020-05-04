@@ -53,12 +53,12 @@ i_functions.supers('/Users/budmacaulay/Desktop/19april/19april/104vac5/test.xyz'
 
 for i in [5, 7, 9, 11, 13, 15, 17, 19, 21]:
     i_functions.slabsets('/Users/budmacaulay/Desktop/LCOotbulk/bulk/POSCAR',
-                         '/Users/budmacaulay/Desktop/cubic/surf2', [1, 0, 4], vacmin=i, vacmax=i,
-                         numberoflayers=7)
+                         '/Users/budmacaulay/Desktop/cubic/surf3', [1, 0, 4], vacmin=i, vacmax=i,
+                         numberoflayers=9)
 
 for i in [5, 7, 9 ,11, 13, 15, 17, 19, 21]:
-    i_functions.supers('/Users/budmacaulay/Desktop/cubic/surf2/104vac' + str(i) + '/POSCAR',
-                       '/Users/budmacaulay/Desktop/cubic/surf2/104vac' + str(i) + '/', [2, 4, 1])
+    i_functions.supers('/Users/budmacaulay/Desktop/cubic/surf3/104vac' + str(i) + '/POSCAR',
+                       '/Users/budmacaulay/Desktop/cubic/surf3/104vac' + str(i) + '/', [2, 4, 1])
 
 for i in [[3,3,1], [4,4,1]]:
     i_functions.supers('/Users/budmacaulay/Desktop/LCOotbulk/bulk/POSCAR', workdir, i)
@@ -68,5 +68,6 @@ for i in ['221', '331', '441']:
     i_functions.onetepdyna('/Users/budmacaulay/Desktop/fixedcode/ONETEPMAKER/sup{}/automade.dat'.format(i), initiallayers=7, style=2, verbose=False)
 
 for i in [5,7,9,11,13,15,17,19,21]:
-    i_functions.onetepdyna('/Users/budmacaulay/Desktop/cubic/surf2/ONETEPMAKER/104vac{}/automade.dat'.format(i),
-                           initiallayers=7, style=2, verbose=False)
+    i_functions.onetepdyna('/Users/budmacaulay/Desktop/cubic/surf3/surf3/104vac{}/automade.dat'.format(i),
+                           initiallayers=9, style=2, verbose=False)
+
