@@ -1,15 +1,17 @@
+#!/usr/bin/env python3
 # GEO Parser - A very simple method to save onetep geometry optimizations (and technically singlepoints) to a csv file showing the
 # energy steps during a geo
 
-
+# add a arg parser but too be honest it's a bit overkill having warnigns be printed is probably a good thing.
+import sys
+import re
+import pandas as pd
+from _collections import OrderedDict
 
 def onetepgeo(inputfile, warnings=True):
-    import sys
-    import re
-    import pandas as pd
-    from _collections import OrderedDict
 
     outputdir = '/'.join((inputfile.split('/')[0:-1]))
+
     # Look for errors just dump them to a text file for now.
     if warnings:
         warn = []
@@ -33,4 +35,9 @@ def onetepgeo(inputfile, warnings=True):
     df = pd.DataFrame(list2write, columns=['ENERGY', 'RMS', 'CG STEPS'])
 
     df.to_csv(outputdir + '/ENERGY.csv', sep='\t')
+
     return df
+
+
+if __name__ == "__main__":
+    onetepgeo(sys.argv[1])
