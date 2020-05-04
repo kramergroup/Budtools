@@ -596,6 +596,10 @@ def tabluateitall(workdir):
 
 #TODO
 # TEST  - the new ngwf method, the new format of ngwf strings e.t.c, generally this needs a lot of work. An oop outlook wudda helped alot tbh
+
+#TODO
+#  change the species block to use angstrom for ngwf cause it's the only part of the code base that does not at the moment and that is a little annoying
+#  update pt.ot
 def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True, verbose=True):
     from ase.io import read, write
     import os
@@ -704,7 +708,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
                 pottyblock.append('%ENDBLOCK SPECIES_POT\n')
                 eleblock.append('%ENDBLOCK SPECIES\n')
                 hubbardblock.append('%ENDBLOCK HUBBARD\n')
-                posblock = ['%BLOCK POSITIONS_ABS\n', *posblock, '%ENDBLOCK POSITIONS_ABS\n']
+                posblock = ['%BLOCK POSITIONS_ABS\n', 'ang\n', *posblock, '%ENDBLOCK POSITIONS_ABS\n']
                 ldosblock = ['%ENDBLOCK SPECIES_LDOS_GROUPS']
 
                 dat = []
@@ -733,3 +737,138 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
     listofchanged = list(dict.fromkeys(listofchanged))
     with open('{0}/ngwftoosmall.txt'.format(outputdir), 'w') as ngwffile:
         ngwffile.write("\n".join(str(item) for item in listofchanged))
+
+
+#Newly written, a method of dynamising onetep structures to have surface layers and none surface layers
+# Should be fairly simple with the method written beforehand
+# TODO fix this
+#  Should work similar to my prior dyna2, needs some testing i guess
+def onetepdyna(workdat, initiallayers, style=0, bulklay=None, verbose=True):
+    from pymatgen import Structure
+    from pymatgen.io.vasp import Poscar
+    import itertools as itt
+    from functools import partial
+    import numpy as np
+
+    # Open the dat file and read it blah blah
+    readlist = []
+    with open(workdat) as readfile:
+        for line in readfile:
+            readlist.append(line)
+
+    # Make sure first line starts with task Geoopt
+    readlist = [x for x in readlist if not x.startswith('task')]
+    readlist.insert(0, 'task : GeometryOptimization\n')
+
+    # Step 2 hunt for a block species constraints if it exists destroy it since we'll make one ourself :)
+    if '%BLOCK SPECIES_CONSTRAINTS\n' in readlist:
+        vprint(readlist.index('%BLOCK SPECIES_CONSTRAINTS\n'), verbose)
+        rembot = readlist.index('%BLOCK SPECIES_CONSTRAINTS\n')
+        remtop = readlist.index('%ENDBLOCK SPECIES_CONSTRAINTS\n')
+        readlist = readlist[:rembot] + readlist[remtop+1:] # I promise i tried a list comprehension
+
+    else:
+        vprint('No spec cons found skipping', verbose)
+
+    #We'll put the new list at the bottom of the file that way people can easily see what's changed.
+    # Can skip all math if style = 0 as it'll just set all atoms to dynBool=True
+    dynablock = ['BLOCK SPECIES_CONSTRAINTS\n']
+    if style == 0:
+        # Do nothing. As onetep turns all atoms on by default.
+        print('style = 0 doing nothing')
+    else:
+        if bulklay = None:
+            # Need to change all blocks to have elem_1 and elem_2 as their tags.
+            if initiallayers % 2 == 0:  # making the number of layers make sense
+                vprint('initiallayers is even', verbose)
+                if style == 1:
+                    vprint('style=1 - small bulk', verbose)
+                    bulklay = 2
+                else:
+                    vprint('style=2 - large bulk', verbose)
+                    bulklay = 4
+            else:
+                vprint('initiallayers is odd', verbose)
+                if style == 1:
+                    vprint('style=1 - small bulk', verbose)
+                    bulklay = 1
+                else:
+                    vprint('style=2 - large bulk', verbose)
+                    bulklay = 3
+
+        allblocks = []
+        readdylist = readlist
+        for line in readlist:
+            if line.startswith('%BLOCK'):
+                allblocks.append(line)
+        allblocks.remove('%BLOCK POSITIONS_ABS\n')
+        allblocks.remove('%BLOCK LATTICE_CART\n')
+        for block in allblocks:
+            if block in readdylist:
+                remtop = readdylist.index(block)
+                rembot = readdylist.index(block[0] + 'END' + block[1:])
+                changedblock = []
+                changeblock = readdylist[remtop+1:rembot]
+                for i in changeblock:
+                    changedblock.append('{} {}\n'.format(i.split()[0]+'1', ' '.join(i.split()[1:])))
+                    changedblock.append('{} {}\n'.format(i.split()[0] + '2', ' '.join(i.split()[1:])))
+
+            readdylist = readdylist[0:remtop-1] + readdylist[rembot+1:] # remove the trash block from the file.
+            readdylist.append('\n')
+            readdylist.append(block)
+            readdylist = readdylist + changedblock
+            readdylist.append(block[0] + 'END' + block[1:])
+
+
+        # Now that all blocks except the atomic sites blocks are done must now do the math on the difficult part.
+        if '%BLOCK POSITIONS_ABS\n' in readdylist:
+            remtop = readdylist.index('%BLOCK POSITIONS_ABS\n')
+            rembot = readdylist.index('%ENDBLOCK POSITIONS_ABS\n')
+            positionblock = readdylist[remtop+1:rembot]
+
+        if positionblock[0].startswith('ang'):
+            vprint('removing ang line',verbose)
+            positionblock = positionblock[1:]
+        vprint('assuming surface is exposed along Z', verbose)
+
+        c_ = []
+        for element in positionblock:
+            c_.append(float(element.split()[3]))
+        c_.sort()
+
+        listy = [] # Makes a list of list, grouped by c position with total list length == initiallayers,
+        ranvar = 0.01
+        while len(listy) != initiallayers:
+            listy = [list(g) for k, g in itt.groupby(c_, partial(the_key, ranvar))]
+            ranvar = ranvar * 1.01
+
+
+        print('Assuming that system is symmetric and bulk is central!')
+        relax = int((initiallayers - bulklay) / 2)
+        print('relaxing {} layers on both sides of the slab'.format(relax))
+
+        list2 = listy[0:relax] + listy[-relax:] # Only grab outside ends
+        flatlist2 = [item for sublist in list2 for item in sublist]  #flatten
+        flatlist2 = list(set(flatlist2)) #remove duplicates
+
+        # Quickly change positionlist to be all twos.
+        position2block = ['{0}2 {1}\n'.format(x.split()[0], ' '.join(x.split()[1:])) if float(x.split()[3]) in flatlist2 else '{0}1 {1}\n'.format(x.split()[0], ' '.join(x.split()[1:])) for x in positionblock]
+        vprint('positions have been updated :)', verbose)
+
+        totspec = []
+        for i in position2block:
+            totspec.append((i.split()[0]))
+
+        totspec = list(set(totspec))
+        totspec.sort()
+        totchange = ['{} FIXED\n'.format(x) if x.endswith('1') else '{} NONE\n'.format(x) for x in totspec]
+
+        # Readding the start and end blocks
+        position2block = ['%BLOCK POSITIONS_ABS\n', 'ang\n'] + position2block + ['%ENDBLOCK POSITIONS_ABS\n', '\n']
+        readdylist = readdylist[:remtop] + readdylist[rembot + 1:]
+        readdylist = readdylist + ['\n'] + position2block
+        # Finally put the last part on spec cons.
+        readdylist.append('%BLOCK SPECIES_CONSTRAINTS\n')
+        readdylist = readdylist + totchange + ['%ENDBLOCK SPECIES_CONSTRAINTS\n']
+        with open('{0}_new.{1}'.format(workdat.split('.')[0],workdat.split('.')[1]), 'w') as outfile:
+            outfile.write(''.join(readdylist))

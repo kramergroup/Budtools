@@ -8,7 +8,7 @@ import os
 
 # Checking my function calls work! -
 # slabsets is a bit dodgy and i'm unsure why -> based on how it defines 'layers' I guess.
-i_functions.slabsets('/Users/budmacaulay/Desktop/BULK/POSCAR', '/Users/budmacaulay/Desktop/testing', [0, 0, 1], vacmin=4, vacmax=15, numberoflayers=5)
+i_functions.slabsets('/Users/budmacaulay/Desktop/BULK/POSCAR', '/Users/budmacaulay/Desktop/thurbulk/surfaces', [1, 0, 4], vacmin=15, vacmax=15, numberoflayers=9)
 
 i_functions.pos2pot(workdir, potcardir)
 
@@ -52,13 +52,21 @@ i_functions.supers('/Users/budmacaulay/Desktop/19april/19april/104vac5/test.xyz'
 #  easier
 
 for i in [5, 7, 9, 11, 13, 15, 17, 19, 21]:
-    i_functions.slabsets('/Users/budmacaulay/Desktop/LCOotconv7layer/POSCAR',
-                         '/Users/budmacaulay/Desktop/LCOotconv7layer/vasp', [1, 0, 4], vacmin=i, vacmax=i,
+    i_functions.slabsets('/Users/budmacaulay/Desktop/LCOotbulk/bulk/POSCAR',
+                         '/Users/budmacaulay/Desktop/cubic/surf2', [1, 0, 4], vacmin=i, vacmax=i,
                          numberoflayers=7)
 
 for i in [5, 7, 9 ,11, 13, 15, 17, 19, 21]:
-    i_functions.supers('/Users/budmacaulay/Desktop/LCOotconv/vasp/104vac' + str(i) + '/POSCAR',
-                       '/Users/budmacaulay/Desktop/LCOotconv/vasp/211sups/104vac' + str(i) + '/', [2, 1, 1])
+    i_functions.supers('/Users/budmacaulay/Desktop/cubic/surf2/104vac' + str(i) + '/POSCAR',
+                       '/Users/budmacaulay/Desktop/cubic/surf2/104vac' + str(i) + '/', [2, 4, 1])
 
-for i in [[1,1,1], [1,2,1], [2,2,1], [2,2,2], [3,2,2], [3,3,2], [3,3,3], [4,3,3], [4,4,3], [4,4,4]]:
-    i_functions.supers('/Users/budmacaulay/Desktop/LCOotbulk/bulk/POSCAR', '/Users/budmacaulay/Desktop/wednesdayot/supercelltest', i)
+for i in [[3,3,1], [4,4,1]]:
+    i_functions.supers('/Users/budmacaulay/Desktop/LCOotbulk/bulk/POSCAR', workdir, i)
+
+
+for i in ['221', '331', '441']:
+    i_functions.onetepdyna('/Users/budmacaulay/Desktop/fixedcode/ONETEPMAKER/sup{}/automade.dat'.format(i), initiallayers=7, style=2, verbose=False)
+
+for i in [5,7,9,11,13,15,17,19,21]:
+    i_functions.onetepdyna('/Users/budmacaulay/Desktop/cubic/surf2/ONETEPMAKER/104vac{}/automade.dat'.format(i),
+                           initiallayers=7, style=2, verbose=False)

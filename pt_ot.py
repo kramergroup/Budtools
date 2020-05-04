@@ -5,20 +5,27 @@
 # needs a elenumber. symbol, and ngwf info - most of this is done except the ngwf stuff so here is that stuff below.
 # It seems finnicky what ngfw you should choose so i'll fiddle with it.
 
+# Ngwfnumber is dependant on the psuedopot used, I am slowly (with my systems anyway) adding those that seem to give
+# decent results on onetep
+
+
+
 #Maingroup - p orbs have 4 i guess - infact can probs set all of these to 4
 H_ot = {
     "ngwf_num": 2,
     "ngwf_rad": 6.0,
-    "psu": '"~/PSONETEP/Heliumnotdefined"'
+    "psu": '"~/PSONETEP/Hydrogennotdefined"'
 }
 
 He_ot = {
 
 }
 
+
+# Convergence tests on a 100 atom lco system show that ngwfnum 5, ngwfrad 3.5 is adequate
 Li_ot = {
     "ngwf_num": 5,
-    "ngwf_rad": 4.5,
+    "ngwf_rad": 3.5,
     "psu": '"~/PSONETEP/li-krgga6.recpot"'
 }
 
@@ -27,9 +34,10 @@ Be_ot = {
     "ngwf_rad": 6.0
 }
 
+# Convergence tests on a 108 atom LCO system show that ngwf_num 4, ngwf_rad 3.5 is adequate
 O_ot = {
     "ngwf_num": 4,
-    "ngwf_rad": 4.5,
+    "ngwf_rad": 3.5,
     "psu": '"~/PSONETEP/o-optgga1.recpot"'
 }
 # Generally tms can just have these values, it might work out that you need to reduce the rad if your cells are small
@@ -38,9 +46,10 @@ Mn_ot = {
     "ngwf_rad": 6.0
 }
 
+#Convergence tests on a 108 LCO system show that ngwf num 14, ngwf rad 5.0 is adequate.
 Co_ot = {
     "ngwf_num": 14,
-    "ngwf_rad": 4.5,
+    "ngwf_rad": 5.0,
     "psu": '"~/PSONETEP/co-optgga1.recpot"'
 }
 
