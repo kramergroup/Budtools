@@ -7,6 +7,7 @@ import sys
 import re
 import pandas as pd
 from _collections import OrderedDict
+from os import makedirs
 
 def onetepgeo(inputfile, warnings=True):
 

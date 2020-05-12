@@ -1,0 +1,33 @@
+#!/bin/bash -l
+#$ -S /bin/bash
+#$ -l h_rt=24:00:00
+#Request 1 gigabyte of RAM per process.
+#$ -l mem=1G
+#Request 10G gigabyte of TMPDIR space per node (default is 10 GB)
+#$ -l tmpfs=10G
+#$ -N {qs2fname}
+#$ -cwd
+# Load modules for running ONETEP compiled using GFortran 6.4.0 and Intel MKL & MPI 2017.4.239
+module load gcc-libs/4.9.2
+module unload mpi/intel/2018/update3/intel compilers/intel/2018/update3
+module load compilers/intel/2017/update3 mpi/intel/2017/update3/intel
+#add to Faraday_MSM
+#$ -P Gold
+#$ -A Faraday_MSM_kra
+#$ -pe mpi 48
+#$ -ac allow=A
+# Set ONETEP executable path
+# (set to the path for your executable compiled using the
+# conf.michael.intel17.omp.scalapack config file)
+ONETEP_EXE="/home/mmm0667/onetep/bin/onetep.thomas"
+# Set input filename
+# (set to your input file name)
+INPUT_FILE="automade_new.dat"
+# Set output filename
+# (no need to change -- derived from input file name)
+OUTPUT_FILE="$(basename ${INPUT_FILE} .dat).out"
+# Set error output filename
+# (no need to change -- derived from input file name)
+ERROR_FILE="$(basename ${INPUT_FILE} .dat).err"
+# Launch the parallel job
+gerun ${ONETEP_EXE} ${INPUT_FILE} > ${OUTPUT_FILE} 2> ${ERROR_FILE}

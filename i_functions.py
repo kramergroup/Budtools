@@ -519,6 +519,7 @@ def qscript2folder(workdir, qscriptdirectory, desiredcluster='iridis5', atomsper
 
 
 # Tool for andrea sendvasp # just makes a simple json over all directories within a working directory
+# TODO - test if this now works alongside qs2fOT.
 def json2folder(workdir, optionalargs=None):
     import json
 
@@ -868,3 +869,37 @@ def onetepdyna(workdat, initiallayers, style=0, bulklay=None, verbose=True):
         readdylist = readdylist + totchange + ['%ENDBLOCK SPECIES_CONSTRAINTS\n']
         with open('{0}_new.{1}'.format(workdat.split('.')[0],workdat.split('.')[1]), 'w') as outfile:
             outfile.write(''.join(readdylist))
+
+
+# Writing a quick and gritty way to port some of the things needed for andreas vasprun stuff to allow me to use it as a
+# weird sendOTrun
+
+# For now all of the json parameters is sorta not important, instead i'll just make it ask the scheduler type, look for
+# that type format (OTsched) and port it over all directories as that seems easier than the fiddling i did prior.
+
+# Done, only variable that currently changed between copying runs is the job name which allows easier tracking of files
+# for bulk submission
+
+# TODO - make this basically 100% same as current qscript2folder for vasp runs else it may get a little confusing.
+def q2fot(workdir, qscriptdirectory, HPCto='iridis5', schedulertype='sbatch'):
+    import json
+    from pymatgen.io.vasp import Poscar
+    import math
+    from shutil import copy2
+    import os.path
+    if os.path.exists('{0}/qscript_OT{1}'.format(qscriptdirectory, schedulertype)):
+        print('Initial qscript found')
+    else:
+        print('Ahh no file found check qscript directory is correctly found')
+
+    for subdir, dirs, files in os.walk(workdir):
+        for file in files:
+            if file.endswith('.dat'):
+                print(subdir)
+                infile = open('{0}/qscript_OT{1}'.format(qscriptdirectory, schedulertype), 'r')
+                qscript_new = [i.replace("{qs2fname}", subdir.split('/')[-1]) for i in infile]
+                qscript_new.insert(1, '#BUD-{0}-{1}\n'.format(HPCto,schedulertype))
+                qscript_str = ''.join(qscript_new)
+                # Writing should be here
+                with open(subdir + '/qscript', 'w') as outterfile:
+                    outterfile.write(qscript_str)
