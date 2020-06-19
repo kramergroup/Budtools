@@ -14,7 +14,7 @@
 #SBATCH --cpus-per-task=4               # Number of OMP threads spawned from each MPI process
 #SBATCH --ntasks-per-node=10
 #SBATCH --mem 0               # Memory required per node, "0" is a special option which requests all the memory on each node.
-#SBATCH --time 4:00:00
+#SBATCH --time 48:00:00
 #SBATCH --exclusive
 module purge
 module load intel-mkl/2018.1.163

@@ -25,6 +25,8 @@ import datetime
 import os
 import shutil
 import numpy as np
+from pymatgen.io.vasp.inputs import BadPotcarWarning
+
 from pt import pt
 
 
@@ -102,7 +104,8 @@ def supers(inputfile, outputdir, supercelldim):
 
 
 def surfsub(inputstructure, subsfor, subswith, outputdir):
-    struc = inputstructure
+    from pymatgen import Structure
+    struc = Structure.from_file(inputstructure)
     subspos = []
     for element in range(0, len(struc)):
         if struc.species[element].name == subsfor:
@@ -127,7 +130,8 @@ def surfsub(inputstructure, subsfor, subswith, outputdir):
 
 
 def bulksub(inputstructure, subsfor, subswith, outputdir):
-    struc = inputstructure
+    from pymatgen import Structure
+    struc = Structure.from_file(inputstructure)
     subspos = []
     for n__ in range(0, len(struc)):
         if struc.species[n__].name == subsfor:
@@ -202,7 +206,7 @@ def dyna(inputfile, surfaceorbulk, layersrelaxed=3, tol=0.01):
 # A new method of dynamising your slabs i devised a while ago. It seems quite consistent and bugfree
 # TODO - add somemore testing for this thing. it'll be cool too!
 # TODO - think of a decent way of nonlayer symmetric surfaces (i.e those of 6 layers?) - this may be done i can't remember
-def dyna2(inputfile, initiallayers, style=0, verbose=True):
+def dyna2(inputfile, initiallayers, bulklay=None,style=0, verbose=True):
     # Rewriting the dyna package, with intent to make it more user friendly and whatnot. Simply.
     # A style of 0 will mean all layers are relaxed (every atom is given a T value)
     # A style of 1 will (if possible give 1 layer of bulk [2 if even initiallayers]- ideal for toy systems or small systems)
@@ -223,22 +227,23 @@ def dyna2(inputfile, initiallayers, style=0, verbose=True):
         possy.structure.to(filename=inputfile)
 
     else:
-        if initiallayers % 2 == 0:
-            vprint('initiallayers is even', verbose)
-            if style == 1:
-                vprint('style=1 - small bulk', verbose)
-                bulklay = 2
+        if bulklay is None:
+            if initiallayers % 2 == 0:
+                vprint('initiallayers is even', verbose)
+                if style == 1:
+                    vprint('style=1 - small bulk', verbose)
+                    bulklay = 2
+                else:
+                    vprint('style=2 - large bulk', verbose)
+                    bulklay = 4
             else:
-                vprint('style=2 - large bulk', verbose)
-                bulklay = 4
-        else:
-            vprint('initiallayers is odd', verbose)
-            if style == 1:
-                vprint('style=1 - small bulk', verbose)
-                bulklay = 1
-            else:
-                vprint('style=2 - large bulk', verbose)
-                bulklay = 3
+                vprint('initiallayers is odd', verbose)
+                if style == 1:
+                    vprint('style=1 - small bulk', verbose)
+                    bulklay = 1
+                else:
+                    vprint('style=2 - large bulk', verbose)
+                    bulklay = 3
 
         c_ = []
         for element in obby:

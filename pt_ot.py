@@ -43,7 +43,8 @@ O_ot = {
 # Generally tms can just have these values, it might work out that you need to reduce the rad if your cells are small
 Mn_ot = {
     "ngwf_num": 14,
-    "ngwf_rad": 9.0
+    "ngwf_rad": 9.0,
+    "psu": '"~/PSONETEP/Mn.PBE-paw.abinit"'
 }
 
 #Convergence tests on a 108 LCO system show that ngwf num 14, ngwf rad 5.0 is adequate.
@@ -55,7 +56,8 @@ Co_ot = {
 
 Ni_ot = {
     "ngwf_num": 14,
-    "ngwf_rad": 6.0
+    "ngwf_rad": 9.0,
+    "psu": '"~/PSONETEP/Ni.PBE-paw.abinit"'
 }
 
 
