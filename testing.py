@@ -8,7 +8,7 @@ import os
 
 # Checking my function calls work! -
 # slabsets is a bit dodgy and i'm unsure why -> based on how it defines 'layers' I guess.
-i_functions.slabsets('/Users/budmacaulay/Desktop/BULK/POSCAR', '/Users/budmacaulay/Desktop/thurbulk/surfaces', [1, 0, 4], vacmin=15, vacmax=15, numberoflayers=9)
+i_functions.slabsets('/Users/budmacaulay/Desktop/BULK/POSCAR', '/Users/budmacaulay/Desktop/thurbulk/surfaces', [1, 0, 4], vacmin=7, vacmax=7, numberoflayers=7)
 
 i_functions.pos2pot(workdir, potcardir)
 

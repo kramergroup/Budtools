@@ -206,7 +206,7 @@ def dyna(inputfile, surfaceorbulk, layersrelaxed=3, tol=0.01):
 # A new method of dynamising your slabs i devised a while ago. It seems quite consistent and bugfree
 # TODO - add somemore testing for this thing. it'll be cool too!
 # TODO - think of a decent way of nonlayer symmetric surfaces (i.e those of 6 layers?) - this may be done i can't remember
-def dyna2(inputfile, initiallayers, bulklay=None,style=0, verbose=True):
+def dyna2(inputfile, initiallayers, bulklay=None, style=0, verbose=True):
     # Rewriting the dyna package, with intent to make it more user friendly and whatnot. Simply.
     # A style of 0 will mean all layers are relaxed (every atom is given a T value)
     # A style of 1 will (if possible give 1 layer of bulk [2 if even initiallayers]- ideal for toy systems or small systems)
@@ -606,7 +606,7 @@ def tabluateitall(workdir):
 #TODO
 #  change the species block to use angstrom for ngwf cause it's the only part of the code base that does not at the moment and that is a little annoying
 #  update pt.ot
-def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True, verbose=True):
+def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True, verbose=True, psutype='paw'):
     from ase.io import read, write
     import os
     from pt import pt
@@ -615,14 +615,14 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
         outputdir = workdir
 
     listofchanged = []
-    os.makedirs(outputdir + '/ONETEPMAKER', exist_ok=True)  # Make the directory
+    os.makedirs(outputdir + '/OT', exist_ok=True)  # Make the directory
     for subdir, dirs, files in os.walk(workdir):
         for file in files:
             if file.endswith('POSCAR'):
                 print(os.path.join(subdir))
-                os.makedirs(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, ''), exist_ok=True)
+                os.makedirs(outputdir + '/OT' + subdir.replace(workdir, ''), exist_ok=True)
                 # ASE - good at this shit - successfully makes an xyz - pretty nicely perhaps shudda looked at this before.
-                write(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/test.xyz',
+                write(outputdir + '/OT' + subdir.replace(workdir, '') + '/test.xyz',
                       read(subdir + '/POSCAR'))
 
                 incfile = open(subdir + '/INCAR', 'r')  # Grabs the encut from the file. could func this with the dict.
@@ -641,7 +641,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
                 latticeblock.append('%ENDBLOCK LATTICE_CART\n')
 
                 posblock = []
-                testfile = open(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/test.xyz', 'r')
+                testfile = open(outputdir + '/OT' + subdir.replace(workdir, '') + '/test.xyz', 'r')
                 for line in testfile:
                     posblock.append(line)
                 posblock.pop(0)  # remove the first two lines they're useless
@@ -665,7 +665,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
                     ldosblock.append(element)  # ldos line. Always made not always put in.
                     if ngwfcheck:
                         vprint('ngwf check flag is on', verbose)
-                        cart = read(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/test.xyz').cell
+                        cart = read(outputdir + '/OT' + subdir.replace(workdir, '') + '/test.xyz').cell
                         smallestdim = min([i.max() for i in cart]) # This strictly isn't how things work but im lazy and this is gast
                         maxngwf = round(smallestdim/(0.5/0.52), 1) - 0.2 # The 0.2 is here just to make sure that things don't get hairy.
                         # Compare maxngwf to the pt.
@@ -697,7 +697,12 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
                         #    pt.get(element).get("ot").get("ngwf_rad")) + '\n')
                     # TODO - find an adequate method to define cluster location of pseudos - also should discuss psuedos to use with someone
                     # can add the psuedos to use to my dictionary that'll be a good use for it. :)
-                    pottyblock.append(str(element) + ' ' + pt.get(element).get("ot").get("psu") + '\n')
+                    if psutype == 'paw':
+                        pottyblock.append(str(element) + ' ' + pt.get(element).get("ot").get("psu_paw") + '\n')
+                    elif psutype == 'recpot':
+                        pottyblock.append(str(element) + ' ' + pt.get(element).get("ot").get("psu_recpot") + '\n')
+                    else:
+                        pottyblock.append(str(element) + ' ' + pt.get(element).get("ot").get("psu") + '\n')
                     if pt.get(element).get("hubbardu"):
                         # TODO - implement a method of asking for the type of u values wanted (as of current only cedar is added)
                         hubbardblock.append('{0} {1} {2} {3} {4} {5} 0\n'.format(str(element), str(
@@ -733,7 +738,7 @@ def vasp2onetep(workdir, startingdat, outputdir='0', ldos=False, ngwfcheck=True,
                 newdat = [dat, '\n', eleblock, '\n', pottyblock, '\n', hubbardblock, '\n', latticeblock, '\n', posblock]
                 newdat = [val for sublist in newdat for val in sublist]
 
-                with open(outputdir + '/ONETEPMAKER/' + subdir.replace(workdir, '') + '/automade.dat',
+                with open(outputdir + '/OT' + subdir.replace(workdir, '') + '/automade.dat',
                           'w+') as outfile:
                     for element in newdat:
                         outfile.write(element)

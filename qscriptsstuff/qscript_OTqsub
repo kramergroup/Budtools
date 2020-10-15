@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #$ -S /bin/bash
-#$ -l h_rt=24:00:00
+#$ -l h_rt=12:00:00
 #Request 1 gigabyte of RAM per process.
 #$ -l mem=1G
 #Request 10G gigabyte of TMPDIR space per node (default is 10 GB)
@@ -14,7 +14,7 @@ module load compilers/intel/2017/update3 mpi/intel/2017/update3/intel
 #add to Faraday_MSM
 #$ -P Gold
 #$ -A Faraday_MSM_kra
-#$ -pe mpi 48
+#$ -pe mpi 32
 #$ -ac allow=A
 # Set ONETEP executable path
 # (set to the path for your executable compiled using the
@@ -22,7 +22,7 @@ module load compilers/intel/2017/update3 mpi/intel/2017/update3/intel
 ONETEP_EXE="/home/mmm0667/onetep/bin/onetep.thomas"
 # Set input filename
 # (set to your input file name)
-INPUT_FILE="automade_new.dat"
+INPUT_FILE="automade.dat"
 # Set output filename
 # (no need to change -- derived from input file name)
 OUTPUT_FILE="$(basename ${INPUT_FILE} .dat).out"

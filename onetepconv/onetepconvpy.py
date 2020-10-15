@@ -11,7 +11,7 @@ import os
 # Would be wise to have this onetep conv maker thing magic directly from one onetep input file even though
 # technically you could use my vasp convergence generator funciton followed by my vasp2onetep
 # from what i remember my vasp convergence stuff is largely for slabs and encut can be easily varied with a bash for
-# loop and thus is probs unneccessary so, having a way to vary the onetep only params would be good
+# loop and thus is probs unneccessary so, having cd bina way to vary the onetep only params would be good
 
 # 1. ngwf radius.
 # 2. number of ngwfs

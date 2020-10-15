@@ -1,4 +1,5 @@
 import sys
+import re
 
 def dir2cart(inputfile):
 
@@ -39,7 +40,7 @@ def dir2cart(inputfile):
 
     while j < (k + len(listofcarts)):
         print(string[j])
-        listofcarts[j-k].append(string[j].split()[3:])
+        listofcarts[j-k].append(re.sub("[[\]]", "", string[j].split()[3])) # putting in the atom stripped of []'s
         j += 1
 
     lofl =[]

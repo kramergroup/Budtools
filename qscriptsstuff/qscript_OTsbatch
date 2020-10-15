@@ -14,7 +14,7 @@
 #SBATCH --cpus-per-task=4               # Number of OMP threads spawned from each MPI process
 #SBATCH --ntasks-per-node=10
 #SBATCH --mem 0               # Memory required per node, "0" is a special option which requests all the memory on each node.
-#SBATCH --time 48:00:00
+#SBATCH --time 24:00:00
 #SBATCH --exclusive
 module purge
 module load intel-mkl/2018.1.163
@@ -49,7 +49,7 @@ export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi.so
 ONETEP_EXE="/home/bm5g15/onetep/bin/onetep.iridis5.intel18.omp.scalapack"
 
 # Set input filename
-INPUT_FILE="automade_new.dat"
+INPUT_FILE="automade.dat"
 
 # Set output filename
 OUTPUT_FILE="$(basename ${INPUT_FILE} .dat).out"

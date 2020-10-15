@@ -1,8 +1,15 @@
+#!/usr/bin/env python3
+
 # TODO - uhm shift all atoms upward so that they are centered within c after the scaling. A bit a way and not sure how
-#  that effects things as of yet
+#  that effects things as of yet. allow args to be used as you go could be cool
+#
+
+
 import os
 import sys
-def budvacmaker(inputfile, stepsize=2, numberofsteps=5, outputdir=None):
+
+
+def budvacmaker(inputfile, stepsize=1, numberofsteps=12, outputdir=None):
     """
     Some time in 2020;
 
@@ -15,7 +22,7 @@ def budvacmaker(inputfile, stepsize=2, numberofsteps=5, outputdir=None):
     from pymatgen import Structure
 
     if outputdir == None:  # Setting the outputdir == to the inputdir if none is supplied.
-        outputdir = '/'.join(inputfile.split('/')[:-1]) + '/'
+        outputdir = '/'.join(inputfile.split('/')[0:-1]) + '/bvm'
 
     f = open(inputfile)
     stru = Structure.from_file(inputfile)
@@ -34,7 +41,7 @@ def budvacmaker(inputfile, stepsize=2, numberofsteps=5, outputdir=None):
         print('no cart line found, dying now')
         exit()
 
-    if 89.995 < stru.lattice.angles[2] < 90.005 == False: # Check to see a/b
+    if 89.995 < stru.lattice.angles[2] < 90.005 == False:  # Check to see a/b
         print("abnormal c angle, it's best not to use this poorly made script dying now. ")
         exit()
 
@@ -45,10 +52,11 @@ def budvacmaker(inputfile, stepsize=2, numberofsteps=5, outputdir=None):
         cdimstring = ' '.join(cdim) + '\n'
         string[4] = cdimstring
 
-        with open('{}/{}/POSCAR'.format(outputdir,i), 'w') as outfile:
+        with open('{}/{}/POSCAR'.format(outputdir, i), 'w') as outfile:
+            print('writing to {}/{}/POSCAR'.format(outputdir, i))
             for line in string:
                 outfile.write(line)
-        #float(string[4].split()[-1]) + numberofsteps * stepsize
+        # float(string[4].split()[-1]) + numberofsteps * stepsize
 
 if __name__ == "__main__":
     budvacmaker(sys.argv[1])
